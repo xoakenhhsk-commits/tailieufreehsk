@@ -547,32 +547,41 @@
           </form>
         </div>
 
-        <!-- Sao Lưu & Khôi Phục -->
-        <div class="admin-card">
-          <h3 class="admin-card-title">
-            <span>💾</span> Sao Lưu &amp; Khôi Phục Dữ Liệu (JSON)
+        <!-- Quản Lý Cơ Sở Dữ Liệu Web & Đồng Bộ Vĩnh Viễn -->
+        <div class="admin-card" style="border-left: 4px solid var(--accent-primary);">
+          <h3 class="admin-card-title" style="color: var(--accent-primary);">
+            <span>🌐</span> Quản Lý Cơ Sở Dữ Liệu Web &amp; Đồng Bộ Vĩnh Viễn
           </h3>
-          <p class="admin-card-desc">Toàn bộ kho sách thật và cài đặt của bạn được lưu trữ an toàn trong trình duyệt. Bạn có thể tải file sao lưu JSON về máy tính để dự phòng hoặc chuyển sang máy khác.</p>
+          <p class="admin-card-desc">Để sách thật bạn đăng <strong>không bao giờ bị mất</strong> khi người khác truy cập hoặc khi đẩy code lên Vercel, dữ liệu cần được lưu vào file cơ sở dữ liệu web (<code>initial-books.json</code>).</p>
 
           <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
             <div>
-              <button type="button" class="btn-preview-office" id="btn-export-data" style="justify-content: flex-start; padding: 12px 18px;">
-                📥 <strong>Xuất File Sao Lưu Toàn Bộ (Export JSON)</strong>
+              <button type="button" class="btn-submit-book" id="btn-export-database" style="justify-content: flex-start; padding: 14px 20px; width: 100%; font-size: 0.95rem;">
+                📥 <strong>Tải File Cơ Sở Dữ Liệu Web (initial-books.json)</strong>
               </button>
-              <div class="form-help">Tải toàn bộ danh sách tài liệu thật, link docx và cài đặt về máy dạng file .json</div>
+              <div class="form-help" style="margin-top: 6px;">Sau khi thêm hoặc sửa sách, bấm nút này để tải file <code>initial-books.json</code> về -> lưu đè vào thư mục <code>src/js/</code> và đẩy lên GitHub. Toàn bộ khách truy cập web và Vercel sẽ thấy sách ngay lập tức!</div>
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button type="button" class="btn-preview-office" id="btn-copy-database-json" style="flex: 1; min-width: 220px; justify-content: flex-start; padding: 12px 16px;">
+                📋 <strong>Sao Chép Mã JSON Dữ Liệu</strong>
+              </button>
+              <button type="button" class="btn-preview-office" id="btn-export-data" style="flex: 1; min-width: 220px; justify-content: flex-start; padding: 12px 16px;">
+                📦 <strong>Sao Lưu Đầy Đủ (Gồm Sách + QC)</strong>
+              </button>
             </div>
 
             <div>
               <input type="file" id="import-file-input" accept=".json" style="display: none;">
-              <button type="button" class="btn-preview-office" onclick="document.getElementById('import-file-input').click()" style="justify-content: flex-start; padding: 12px 18px;">
-                📤 <strong>Khôi Phục Dữ Liệu Từ File (Import JSON)</strong>
+              <button type="button" class="btn-preview-office" onclick="document.getElementById('import-file-input').click()" style="justify-content: flex-start; padding: 12px 18px; width: 100%;">
+                📤 <strong>Khôi Phục / Nạp Dữ Liệu Từ File (.json)</strong>
               </button>
-              <div class="form-help">Nạp lại dữ liệu sách từ file .json đã sao lưu trước đó.</div>
+              <div class="form-help">Hỗ trợ nạp lại dữ liệu từ file <code>initial-books.json</code> hoặc file backup khi chuyển thiết bị / trình duyệt.</div>
             </div>
 
             <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 8px;">
               <button type="button" id="btn-reset-data" style="background: none; border: 1px solid var(--danger); color: var(--danger); padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem; font-weight: 600;">
-                ⚠️ Đặt lại dữ liệu mẫu ban đầu
+                ⚠️ Khôi phục về cơ sở dữ liệu gốc của web
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { INITIAL_BOOKS } from './sample-data.js';
+import DEFAULT_DATABASE_BOOKS from './initial-books.json';
 
 const STORAGE_KEYS = {
   BOOKS: 'tailieufree_books',
@@ -6,7 +7,7 @@ const STORAGE_KEYS = {
   AD_SETTINGS: 'tailieufree_ad_settings',
   ADMIN_PIN: 'tailieufree_admin_pin',
   ADMIN_AUTH: 'tailieufree_admin_auth',
-  SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v2'
+  SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v3'
 };
 
 const DEFAULT_ADMIN_PIN = '12102010';
@@ -23,14 +24,34 @@ const DEFAULT_AD_SETTINGS = {
 export const Store = {
   // --- Khởi tạo dữ liệu ---
   init() {
-    // Làm sạch sách mẫu ban đầu theo yêu cầu: kho sách rỗng hoàn toàn để nhập sách thật
-    const isCleaned = localStorage.getItem(STORAGE_KEYS.SAMPLE_CLEANED);
-    if (!isCleaned) {
-      // Dọn sạch sách mẫu demo cũ nếu có
-      localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify([]));
-      localStorage.setItem(STORAGE_KEYS.SAMPLE_CLEANED, 'true');
-    } else if (!localStorage.getItem(STORAGE_KEYS.BOOKS)) {
-      localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify([]));
+    // 1. Luôn nạp cơ sở dữ liệu gốc của web (initial-books.json)
+    const localData = localStorage.getItem(STORAGE_KEYS.BOOKS);
+    if (!localData) {
+      localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_DATABASE_BOOKS));
+    } else {
+      try {
+        let books = JSON.parse(localData);
+        if (!Array.isArray(books) || books.length === 0) {
+          if (DEFAULT_DATABASE_BOOKS.length > 0) {
+            localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_DATABASE_BOOKS));
+          }
+        } else {
+          // Tự động gộp các sách có trong cơ sở dữ liệu web nếu local chưa có
+          const localIds = new Set(books.map(b => b.id));
+          let hasNew = false;
+          for (const dbBook of DEFAULT_DATABASE_BOOKS) {
+            if (!localIds.has(dbBook.id)) {
+              books.push(dbBook);
+              hasNew = true;
+            }
+          }
+          if (hasNew) {
+            localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(books));
+          }
+        }
+      } catch (e) {
+        localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_DATABASE_BOOKS));
+      }
     }
 
     const currentAdSettings = localStorage.getItem(STORAGE_KEYS.AD_SETTINGS);
@@ -61,10 +82,14 @@ export const Store = {
   getBooks() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.BOOKS);
-      return data ? JSON.parse(data) : [];
+      const books = data ? JSON.parse(data) : [];
+      if (Array.isArray(books) && books.length > 0) {
+        return books;
+      }
+      return DEFAULT_DATABASE_BOOKS || [];
     } catch (e) {
       console.error('Lỗi đọc dữ liệu sách:', e);
-      return [];
+      return DEFAULT_DATABASE_BOOKS || [];
     }
   },
 
@@ -245,6 +270,10 @@ export const Store = {
   },
 
   importData(jsonData) {
+    if (Array.isArray(jsonData)) {
+      this.saveBooks(jsonData);
+      return true;
+    }
     if (jsonData && Array.isArray(jsonData.books)) {
       this.saveBooks(jsonData.books);
       if (jsonData.adSettings) {
@@ -256,9 +285,9 @@ export const Store = {
   },
 
   resetToDefault() {
-    localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_DATABASE_BOOKS));
     localStorage.setItem(STORAGE_KEYS.AD_SETTINGS, JSON.stringify(DEFAULT_AD_SETTINGS));
-    this.saveBooks([]);
+    this.saveBooks(DEFAULT_DATABASE_BOOKS);
   }
 };
 

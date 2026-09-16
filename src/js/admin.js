@@ -179,6 +179,37 @@ export const AdminModule = {
     const exportBtn = document.getElementById('btn-export-data');
     const importInput = document.getElementById('import-file-input');
     const resetBtn = document.getElementById('btn-reset-data');
+    const exportDbBtn = document.getElementById('btn-export-database');
+    const copyDbJsonBtn = document.getElementById('btn-copy-database-json');
+
+    // Tải file cơ sở dữ liệu web (initial-books.json)
+    if (exportDbBtn) {
+      exportDbBtn.addEventListener('click', () => {
+        const books = Store.getBooks();
+        const jsonContent = JSON.stringify(books, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'initial-books.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        this.showToast('✅ Đã tải file initial-books.json! Lưu đè vào src/js/ và đẩy lên GitHub để lưu vĩnh viễn.', 'success');
+      });
+    }
+
+    // Sao chép mã JSON dữ liệu web
+    if (copyDbJsonBtn) {
+      copyDbJsonBtn.addEventListener('click', () => {
+        const books = Store.getBooks();
+        const jsonContent = JSON.stringify(books, null, 2);
+        navigator.clipboard.writeText(jsonContent).then(() => {
+          this.showToast('📋 Đã sao chép toàn bộ mã JSON dữ liệu vào bộ nhớ tạm!', 'success');
+        }).catch(() => {
+          this.showToast('Không thể sao chép tự động. Vui lòng thử nút Tải File.', 'warning');
+        });
+      });
+    }
 
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
@@ -219,9 +250,9 @@ export const AdminModule = {
 
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        if (confirm('Bạn có chắc chắn muốn đặt lại dữ liệu sách mẫu ban đầu không?')) {
+        if (confirm('Bạn có chắc chắn muốn khôi phục về cơ sở dữ liệu gốc của web không?')) {
           Store.resetToDefault();
-          this.showToast('Đã đặt lại dữ liệu mặc định!', 'info');
+          this.showToast('Đã khôi phục dữ liệu gốc của web!', 'info');
           this.renderApp();
           this.refreshAdminData();
         }
@@ -352,7 +383,7 @@ export const AdminModule = {
         description,
         isPinned
       });
-      this.showToast('Đã thêm tài liệu mới vào hệ thống thành công!', 'success');
+      this.showToast('✅ Đã thêm tài liệu thành công! Hãy vào tab "Mật Khẩu & Sao Lưu" -> tải file initial-books.json để lưu vĩnh viễn lên GitHub & Vercel.', 'success');
     }
 
     this.resetForm();
