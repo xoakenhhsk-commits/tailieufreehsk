@@ -266,13 +266,33 @@
             <p class="admin-card-desc">Hỗ trợ link DOCX từ Google Drive (tự động tối ưu link tải), OneDrive, hoặc link file trực tiếp. Ảnh bìa tải từ máy lên hoặc nhập link.</p>
           </div>
 
-          <!-- Thông báo trạng thái đồng bộ Cloud -->
-          <div id="add-book-cloud-status" style="margin-bottom: 16px; border-radius: var(--squircle-sm); padding: 10px 14px; font-size: 0.88rem; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; transition: var(--transition-fast);">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="cloud-status-icon">☁️</span>
-              <span id="cloud-status-text">Đang kiểm tra kết nối Cloud...</span>
+          <!-- Ô Dán GitHub Token Trực Tiếp Tại Form Đăng Sách -->
+          <div id="quick-github-token-card" style="margin-bottom: 22px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--squircle-sm); padding: 14px 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <label class="form-label" style="margin: 0; font-size: 0.9rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+                <span>🔑</span> Ô DÁN GITHUB TOKEN (Để sách đăng tự hiện cho mọi người):
+              </label>
+              <a href="https://github.com/settings/tokens/new?scopes=repo&description=TaiLieuFree-Sync" target="_blank" rel="noopener noreferrer" style="font-size: 0.8rem; color: var(--accent-cyan); text-decoration: underline; font-weight: 600;">
+                Bấm vào đây để lấy mã Token (30s) ↗
+              </a>
             </div>
-            <span style="font-size: 0.78rem; text-decoration: underline; color: var(--accent-cyan); font-weight: 600;">Cài đặt ↗</span>
+            <div style="display: flex; gap: 8px;">
+              <input 
+                type="password" 
+                id="quick-github-token-input" 
+                class="form-input" 
+                placeholder="Dán mã token ghp_... vào đây" 
+                autocomplete="off" 
+                spellcheck="false"
+                style="flex: 1; font-size: 0.88rem; border-color: rgba(56, 189, 248, 0.4);"
+              >
+              <button type="button" id="btn-quick-save-github-token" class="btn-submit-book" style="padding: 0 18px; font-size: 0.88rem; white-space: nowrap;">
+                💾 Lưu Token
+              </button>
+            </div>
+            <div id="quick-token-status" style="font-size: 0.8rem; margin-top: 6px; color: var(--text-muted);">
+              Chỉ cần dán mã token 1 lần duy nhất, các lần sau cứ bấm "Đăng Sách Mới" là tự động đồng bộ lên mọi điện thoại khác!
+            </div>
           </div>
 
           <form id="admin-book-form">

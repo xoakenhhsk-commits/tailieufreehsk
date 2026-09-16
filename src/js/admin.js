@@ -269,6 +269,22 @@ export const AdminModule = {
     const toggleTokenVisBtn = document.getElementById('btn-toggle-github-token-visibility');
     const addBookCloudStatus = document.getElementById('add-book-cloud-status');
 
+    // Lưu Token nhanh ngay tại form Đăng sách
+    const quickSaveBtn = document.getElementById('btn-quick-save-github-token');
+    const quickTokenInput = document.getElementById('quick-github-token-input');
+    if (quickSaveBtn && quickTokenInput) {
+      quickSaveBtn.addEventListener('click', () => {
+        const token = quickTokenInput.value.trim();
+        if (!token) {
+          this.showToast('Vui lòng dán mã GitHub Token vào ô!', 'warning');
+          return;
+        }
+        Store.saveGitHubSettings({ token });
+        this.loadGitHubSettings();
+        this.showToast('✅ Đã lưu GitHub Token thành công! Từ bây giờ bạn đăng sách sẽ tự hiện cho mọi người.', 'success', 5000);
+      });
+    }
+
     if (addBookCloudStatus) {
       addBookCloudStatus.addEventListener('click', () => {
         this.switchTab('github-sync');
@@ -498,24 +514,28 @@ export const AdminModule = {
       }
     }
 
-    // Cập nhật banner trên form Đăng sách (tab-add-book)
-    const addBookBanner = document.getElementById('add-book-cloud-status');
-    const iconEl = document.getElementById('cloud-status-icon');
-    const textEl = document.getElementById('cloud-status-text');
+    // Cập nhật ô nhập Token nhanh trên form Đăng sách (tab-add-book)
+    const quickTokenInput = document.getElementById('quick-github-token-input');
+    const quickTokenStatus = document.getElementById('quick-token-status');
+    const quickCard = document.getElementById('quick-github-token-card');
 
-    if (addBookBanner && textEl) {
+    if (quickTokenInput) {
+      quickTokenInput.value = gh.token || '';
+    }
+
+    if (quickTokenStatus) {
       if (gh.token) {
-        addBookBanner.style.background = 'rgba(16, 185, 129, 0.12)';
-        addBookBanner.style.border = '1px solid rgba(16, 185, 129, 0.35)';
-        addBookBanner.style.color = '#34d399';
-        if (iconEl) iconEl.textContent = '🟢';
-        textEl.innerHTML = `<strong>Cloud Sync ĐANG BẬT:</strong> Sách đăng sẽ tự lưu lên GitHub &amp; hiển thị ngay cho mọi điện thoại khác!`;
+        if (quickCard) {
+          quickCard.style.background = 'rgba(16, 185, 129, 0.08)';
+          quickCard.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+        }
+        quickTokenStatus.innerHTML = `<span style="color: var(--success); font-weight: 600;">✓ ĐÃ KẾT NỐI CLOUD: Sách bạn đăng sẽ tự động lưu lên GitHub và hiện ngay cho tất cả người dùng trên mọi thiết bị!</span>`;
       } else {
-        addBookBanner.style.background = 'rgba(245, 158, 11, 0.12)';
-        addBookBanner.style.border = '1px solid rgba(245, 158, 11, 0.35)';
-        addBookBanner.style.color = '#fbbf24';
-        if (iconEl) iconEl.textContent = '⚠️';
-        textEl.innerHTML = `<strong>Chưa kết nối Cloud:</strong> Sách đăng chỉ lưu trên máy này. Chạm vào đây để dán GitHub Token!`;
+        if (quickCard) {
+          quickCard.style.background = 'rgba(56, 189, 248, 0.08)';
+          quickCard.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+        }
+        quickTokenStatus.innerHTML = `<span style="color: #fbbf24; font-weight: 600;">⚠️ Chưa dán Token: Sách chỉ lưu tạm trên máy này. Hãy dán mã Token ghp_... vào ô trên rồi bấm "Lưu Token" để sách hiện cho người khác.</span>`;
       }
     }
   },
