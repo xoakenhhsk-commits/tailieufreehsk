@@ -1,9 +1,11 @@
 import { Store } from './store.js';
 import { AdManager } from './ads.js';
 import { AdminModule } from './admin.js';
+import { Analytics } from './analytics.js';
 
 // Expose modules to global window for inline onclick handlers
 window.AdminModule = AdminModule;
+window.Analytics = Analytics;
 
 export const App = {
   searchQuery: '',
@@ -16,6 +18,9 @@ export const App = {
     this.renderBooks();
     this.bindEvents();
     this.updateFavoritesCount();
+
+    // Khởi tạo hệ thống thống kê realtime & bảo vệ người xem thật
+    Analytics.init();
 
     // Khởi tạo hệ thống quảng cáo và cổng tải
     AdManager.init();
@@ -325,21 +330,37 @@ export const App = {
     }
   },
 
-  handlePinSubmit() {
+  async handlePinSubmit() {
     const pinInput = document.getElementById('pin-input');
     const enteredPin = pinInput ? pinInput.value.trim() : '';
-    const actualPin = Store.getAdminPin();
 
-    if (enteredPin === actualPin) {
-      Store.setAdminAuthenticated(true);
+    if (!enteredPin) {
+      this.showToast('Vui lòng nhập mật khẩu quản trị!', 'warning');
+      return;
+    }
+
+    const submitBtn = document.getElementById('btn-submit-pin');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang xác thực...';
+    }
+
+    const result = await Store.verifyAdminPin(enteredPin);
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Xác Nhận';
+    }
+
+    if (result.success) {
       this.closeModal('pin-modal');
-      this.showToast('Đăng nhập Quản trị viên thành công!', 'success');
+      this.showToast('🔒 Đăng nhập Quản trị viên thành công (Đã mã hóa bảo vệ)!', 'success');
       if (!window.location.pathname.includes('/admin')) {
         window.history.pushState(null, '', '#admin');
       }
       this.navigateTo('admin');
     } else {
-      this.showToast('Mật khẩu quản trị không chính xác!', 'error');
+      this.showToast(result.error || 'Mật khẩu quản trị không chính xác!', 'error');
       if (pinInput) {
         pinInput.value = '';
         pinInput.focus();

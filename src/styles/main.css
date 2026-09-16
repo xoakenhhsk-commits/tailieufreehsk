@@ -1494,4 +1494,54 @@ body {
   }
 }
 
+/* ================= REALTIME LIVE BADGE & PYTHON SHIELD ================= */
+.hero-badges-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.realtime-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #34d399;
+  letter-spacing: 0.01em;
+  transition: all var(--transition-normal);
+}
+
+.realtime-pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulseLiveDot 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseLiveDot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 6px #10b981;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.7;
+    box-shadow: 0 0 16px #34d399;
+  }
+}
+
 

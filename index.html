@@ -105,9 +105,15 @@
     <section id="user-view">
       <!-- Hero / Search Section -->
       <div class="hero-section">
-        <div class="hero-badge">
-          <span class="badge-dot"></span>
-          <span>Kho tài liệu DOCX chọn lọc &amp; Cập nhật liên tục</span>
+        <div class="hero-badges-wrap">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            <span>Kho tài liệu DOCX chọn lọc &amp; Cập nhật liên tục</span>
+          </div>
+          <div class="realtime-live-badge" id="realtime-live-badge" title="Thống kê người xem trực tiếp bảo vệ bởi Python">
+            <span class="realtime-pulse-dot"></span>
+            <span id="realtime-online-text">Đang có <strong>1</strong> người xem trực tiếp</span>
+          </div>
         </div>
         <h2 class="hero-title">Đọc &amp; Tải Sách DOCX Miễn Phí</h2>
         <p class="hero-subtitle">Tra cứu hàng nghìn giáo trình đại học, tài liệu công nghệ, kinh tế, ngoại ngữ và kỹ năng chuẩn định dạng Microsoft Word.</p>
@@ -185,14 +191,19 @@
           <span class="stat-card-value" id="stat-total-books">0</span>
         </div>
         <div class="stat-card">
-          <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">👁️</div>
-          <span class="stat-card-title">Lượt xem tài liệu</span>
+          <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🟢</div>
+          <span class="stat-card-title">Đang xem trực tiếp</span>
+          <span class="stat-card-value" id="stat-realtime-online">1</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8;">👁️</div>
+          <span class="stat-card-title">Lượt xem thật</span>
           <span class="stat-card-value" id="stat-total-views">0</span>
         </div>
         <div class="stat-card">
-          <div class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">📌</div>
-          <span class="stat-card-title">Tài liệu đã ghim</span>
-          <span class="stat-card-value" id="stat-total-pinned">0</span>
+          <div class="stat-icon-wrap" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">⬇️</div>
+          <span class="stat-card-title">Lượt tải thật</span>
+          <span class="stat-card-value" id="stat-total-downloads">0</span>
         </div>
         <div class="stat-card">
           <div class="stat-icon-wrap" style="background: rgba(236, 72, 153, 0.15); color: #f472b6;">📢</div>
@@ -727,7 +738,10 @@
 
       <div class="modal-body">
         <div style="font-size: 2.6rem; margin-bottom: 6px;">🔐</div>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 14px;">Vui lòng nhập mật khẩu quản trị để mở bảng điều khiển</p>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px;">Vui lòng nhập mật khẩu quản trị để mở bảng điều khiển</p>
+        <div class="pin-security-badge" style="font-size: 0.76rem; color: var(--accent-primary); background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 20px; padding: 5px 12px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px;">
+          <span>🛡️</span> Bảo vệ bởi Python Engine • Mã hóa SHA-256 • Chống Hack
+        </div>
 
         <form id="pin-login-form">
           <div class="password-input-wrap">

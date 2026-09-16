@@ -113,13 +113,14 @@ export const AdminModule = {
     // Đổi mật khẩu Admin
     const changePinForm = document.getElementById('admin-change-pin-form');
     if (changePinForm) {
-      changePinForm.addEventListener('submit', (e) => {
+      changePinForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const oldPin = document.getElementById('old-pin-input')?.value.trim();
         const newPin = document.getElementById('new-pin-input')?.value.trim();
         const confirmPin = document.getElementById('confirm-new-pin-input')?.value.trim();
 
-        if (oldPin !== Store.getAdminPin()) {
+        const verifyOld = await Store.verifyAdminPin(oldPin);
+        if (!verifyOld.success) {
           this.showToast('Mật khẩu hiện tại không chính xác!', 'error');
           return;
         }
@@ -132,9 +133,9 @@ export const AdminModule = {
           return;
         }
 
-        Store.setAdminPin(newPin);
+        await Store.setAdminPin(newPin);
         changePinForm.reset();
-        this.showToast('Đã đổi mật khẩu quản trị thành công!', 'success');
+        this.showToast('🔒 Đã mã hóa và đổi mật khẩu quản trị thành công!', 'success');
       });
     }
 

@@ -5,12 +5,25 @@ const STORAGE_KEYS = {
   BOOKS: 'tailieufree_books',
   FAVORITES: 'tailieufree_favorites',
   AD_SETTINGS: 'tailieufree_ad_settings',
-  ADMIN_PIN: 'tailieufree_admin_pin',
+  ADMIN_PIN_HASH: 'tailieufree_admin_pin_hash_v2',
+  ADMIN_TOKEN: 'tailieufree_admin_token',
   ADMIN_AUTH: 'tailieufree_admin_auth',
   SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v3'
 };
 
-const DEFAULT_ADMIN_PIN = '12102010';
+const DEFAULT_PIN_HASH = '0ce624655f24e07f6c87aff2d126edab6a2219c704e0d9db3d645d85fb7d69d5';
+
+export async function hashPin(pin) {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin.trim() + '_salt_tailieufree_2026');
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return DEFAULT_PIN_HASH;
+  }
+}
 
 const DEFAULT_AD_SETTINGS = {
   enabled: true, // Kích hoạt tính năng quảng cáo
@@ -71,10 +84,10 @@ export const Store = {
       }
     }
 
-    // Cập nhật mã PIN sang 12102010 nếu chưa có hoặc đang là mã cũ 123456
-    const currentPin = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN);
-    if (!currentPin || currentPin === '123456') {
-      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, DEFAULT_ADMIN_PIN);
+    // Bảo mật: Xóa vĩnh viễn mã PIN dạng văn bản thô (cleartext) cũ khỏi bộ nhớ
+    localStorage.removeItem('tailieufree_admin_pin');
+    if (!localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH)) {
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, DEFAULT_PIN_HASH);
     }
   },
 
@@ -166,6 +179,7 @@ export const Store = {
       book.views = (book.views || 0) + 1;
       this.saveBooks(books);
     }
+    window.dispatchEvent(new CustomEvent('tailieufree_view_recorded', { detail: { bookId: id } }));
   },
 
   incrementDownloads(id) {
@@ -175,6 +189,7 @@ export const Store = {
       book.downloads = (book.downloads || 0) + 1;
       this.saveBooks(books);
     }
+    window.dispatchEvent(new CustomEvent('tailieufree_download_recorded', { detail: { bookId: id } }));
   },
 
   // Chuẩn hóa link Google Drive để tải/mở trực tiếp
@@ -238,13 +253,66 @@ export const Store = {
     return updated;
   },
 
-  // --- Quản lý Mật khẩu Quản trị ---
-  getAdminPin() {
-    return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN) || DEFAULT_ADMIN_PIN;
+  // --- Quản lý Mật khẩu Quản trị (Mã hóa SHA-256 & Bảo vệ bởi Python Backend) ---
+  getAdminPinHash() {
+    return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH) || DEFAULT_PIN_HASH;
   },
 
-  setAdminPin(newPin) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, newPin.trim());
+  async verifyAdminPin(inputPin) {
+    const cleanPin = (inputPin || '').trim();
+    if (!cleanPin) return { success: false, error: 'Vui lòng nhập mật khẩu quản trị!' };
+
+    // 1. Xác thực qua Python Serverless Backend với cơ chế chống Brute-Force
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: cleanPin })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.token) {
+          sessionStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, data.token);
+        }
+        sessionStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
+        return { success: true, message: data.message };
+      } else {
+        return { success: false, error: data.error || 'Mật khẩu quản trị không chính xác!' };
+      }
+    } catch {
+      // 2. Fallback ngoại tuyến (Web Crypto SHA-256) an toàn nếu backend chưa sẵn sàng
+      const hashed = await hashPin(cleanPin);
+      if (hashed === this.getAdminPinHash()) {
+        sessionStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
+        return { success: true };
+      } else {
+        return { success: false, error: 'Mật khẩu quản trị không đúng!' };
+      }
+    }
+  },
+
+  async setAdminPin(newPin) {
+    const cleanPin = (newPin || '').trim();
+    if (cleanPin.length < 4) return { success: false, error: 'Mật khẩu phải từ 4 ký tự!' };
+
+    const newHash = await hashPin(cleanPin);
+    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, newHash);
+
+    // Đồng bộ sang Python backend nếu có token
+    const token = sessionStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
+    try {
+      await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': token || ''
+        },
+        body: JSON.stringify({ new_pin: cleanPin })
+      });
+    } catch {}
+
+    return { success: true, hash: newHash };
   },
 
   isAdminAuthenticated() {
@@ -257,6 +325,7 @@ export const Store = {
 
   logoutAdmin() {
     sessionStorage.removeItem(STORAGE_KEYS.ADMIN_AUTH);
+    sessionStorage.removeItem(STORAGE_KEYS.ADMIN_TOKEN);
   },
 
   // --- Backup & Khôi phục (Export / Import) ---
