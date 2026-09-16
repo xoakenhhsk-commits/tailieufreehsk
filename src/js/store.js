@@ -30,7 +30,7 @@ const DEFAULT_AD_SETTINGS = {
   enabled: true, // Kích hoạt tính năng quảng cáo
   autoPopunder: true, // Tự động mở quảng cáo ngay khi khách vào web chạm màn hình (tính tiền view 100%)
   directLinkUrl: 'https://www.profitableratecpmnetwork.com/wxg5rhv9?key=f4704f44269e309bf6b70c1aa745cc75', // Link Direct Link Adsterra thật của bạn
-  scriptCode: '', // Mã Script Popunder / Social Bar Adsterra
+  scriptCode: '<script src="https://pl31365543.profitableratecpmnetwork.com/e7/fd/18/e7fd18b9a2b3388bb4ca6b2e343fdc4f.js"></script>', // Mã Script Popunder / Social Bar Adsterra
   bannerHtml: '', // Mã HTML Banner Adsterra / Adsense
   countdownSeconds: 5, // Đếm ngược cổng chờ tải
   clicksRequired: 1
@@ -77,6 +77,9 @@ export const Store = {
         const parsed = JSON.parse(currentAdSettings);
         parsed.directLinkUrl = DEFAULT_AD_SETTINGS.directLinkUrl;
         parsed.enabled = true;
+        if (!parsed.scriptCode) {
+          parsed.scriptCode = DEFAULT_AD_SETTINGS.scriptCode;
+        }
         if (typeof parsed.autoPopunder === 'undefined') {
           parsed.autoPopunder = true;
         }
