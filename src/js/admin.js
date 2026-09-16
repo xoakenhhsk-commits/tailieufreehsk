@@ -260,6 +260,118 @@ export const AdminModule = {
         }
       });
     }
+
+    // --- Cấu hình Đồng bộ GitHub Cloud ---
+    const saveGhBtn = document.getElementById('btn-save-github-settings');
+    const testGhBtn = document.getElementById('btn-test-github');
+    const syncGhBtn = document.getElementById('btn-sync-github-now');
+    const pullGhBtn = document.getElementById('btn-pull-github-now');
+    const toggleTokenVisBtn = document.getElementById('btn-toggle-github-token-visibility');
+    const addBookCloudStatus = document.getElementById('add-book-cloud-status');
+
+    if (addBookCloudStatus) {
+      addBookCloudStatus.addEventListener('click', () => {
+        this.switchTab('github-sync');
+      });
+    }
+
+    if (toggleTokenVisBtn) {
+      toggleTokenVisBtn.addEventListener('click', () => {
+        const input = document.getElementById('github-token-input');
+        if (input) {
+          input.type = input.type === 'password' ? 'text' : 'password';
+          toggleTokenVisBtn.textContent = input.type === 'password' ? '👁️' : '🔒';
+        }
+      });
+    }
+
+    if (saveGhBtn) {
+      saveGhBtn.addEventListener('click', () => {
+        const token = document.getElementById('github-token-input')?.value.trim() || '';
+        const repo = document.getElementById('github-repo-input')?.value.trim() || 'xoakenhhsk-commits/tailieufreehsk';
+        const branch = document.getElementById('github-branch-input')?.value.trim() || 'main';
+        const autoSync = document.getElementById('github-autosync-toggle')?.checked ?? true;
+
+        Store.saveGitHubSettings({ token, repo, branch, autoSync });
+        this.loadGitHubSettings();
+        this.showToast('✅ Đã lưu cấu hình GitHub thành công!', 'success');
+      });
+    }
+
+    if (testGhBtn) {
+      testGhBtn.addEventListener('click', async () => {
+        const token = document.getElementById('github-token-input')?.value.trim();
+        const repo = document.getElementById('github-repo-input')?.value.trim();
+        const branch = document.getElementById('github-branch-input')?.value.trim();
+
+        if (!token) {
+          this.showToast('Vui lòng dán GitHub Token vào ô trước khi kiểm tra!', 'warning');
+          return;
+        }
+
+        this.showToast('Đang kết nối tới GitHub API...', 'info', 2000);
+        const res = await Store.testGitHubConnection(token, repo, branch);
+        if (res.success) {
+          this.showToast(res.message, 'success', 4000);
+          this.loadGitHubSettings();
+        } else {
+          this.showToast(res.error, 'error', 5000);
+        }
+      });
+    }
+
+    if (syncGhBtn) {
+      syncGhBtn.addEventListener('click', async () => {
+        const gh = Store.getGitHubSettings();
+        if (!gh.token) {
+          this.showToast('Vui lòng nhập GitHub Token trước khi đồng bộ!', 'warning');
+          return;
+        }
+
+        this.showToast('🚀 Đang đẩy dữ liệu toàn bộ sách lên GitHub Cloud...', 'info', 3000);
+        syncGhBtn.disabled = true;
+        const res = await Store.syncToGitHub('Đồng bộ toàn bộ cơ sở dữ liệu sách từ Admin Panel');
+        syncGhBtn.disabled = false;
+
+        if (res.success) {
+          this.showToast(`✅ Đã đồng bộ thành công ${res.booksCount} sách lên GitHub! Mọi người dùng sẽ thấy sách mới.`, 'success', 5000);
+          this.loadGitHubSettings();
+        } else {
+          this.showToast('❌ Lỗi đồng bộ: ' + res.error, 'error', 5000);
+        }
+      });
+    }
+
+    if (pullGhBtn) {
+      pullGhBtn.addEventListener('click', async () => {
+        this.showToast('🔄 Đang kiểm tra và kéo sách mới nhất từ GitHub...', 'info', 3000);
+        pullGhBtn.disabled = true;
+        const res = await Store.fetchRemoteBooks();
+        pullGhBtn.disabled = false;
+
+        if (res.success) {
+          this.showToast(`✅ Đã đồng bộ ${res.booksCount} sách từ GitHub Cloud về máy!`, 'success', 4000);
+          this.renderApp();
+          this.refreshAdminData();
+        } else {
+          this.showToast('Không thể tải từ GitHub: ' + (res.error || 'Mã lỗi ' + res.status), 'error');
+        }
+      });
+    }
+
+    // Lắng nghe các sự kiện đồng bộ tự động từ Store
+    window.addEventListener('tailieufree_github_syncing', (e) => {
+      this.showToast(`🚀 Đang tự động lưu lên GitHub: ${e.detail?.action || '...' }`, 'info', 3000);
+    });
+
+    window.addEventListener('tailieufree_github_synced', () => {
+      this.showToast('✅ Đã lưu và đồng bộ lên GitHub Cloud thành công! Sách đã có sẵn cho mọi thiết bị.', 'success', 4000);
+      this.loadGitHubSettings();
+    });
+
+    window.addEventListener('tailieufree_github_sync_error', (e) => {
+      this.showToast('⚠️ Lỗi tự động đồng bộ GitHub: ' + (e.detail?.error || 'Vui lòng kiểm tra lại Token'), 'error', 6000);
+    });
   },
 
   // Xử lý nén ảnh Base64
@@ -323,6 +435,8 @@ export const AdminModule = {
       this.renderManageList();
     } else if (tabId === 'ad-settings') {
       this.loadAdSettings();
+    } else if (tabId === 'github-sync') {
+      this.loadGitHubSettings();
     }
   },
 
@@ -341,6 +455,69 @@ export const AdminModule = {
     if (scriptInput) scriptInput.value = settings.scriptCode || '';
     if (bannerInput) bannerInput.value = settings.bannerHtml || '';
     if (countdownInput) countdownInput.value = settings.countdownSeconds || 5;
+  },
+
+  loadGitHubSettings() {
+    const gh = Store.getGitHubSettings();
+    const tokenInput = document.getElementById('github-token-input');
+    const repoInput = document.getElementById('github-repo-input');
+    const branchInput = document.getElementById('github-branch-input');
+    const autoSyncToggle = document.getElementById('github-autosync-toggle');
+
+    if (tokenInput) tokenInput.value = gh.token || '';
+    if (repoInput) repoInput.value = gh.repo || 'xoakenhhsk-commits/tailieufreehsk';
+    if (branchInput) branchInput.value = gh.branch || 'main';
+    if (autoSyncToggle) autoSyncToggle.checked = gh.autoSync !== false;
+
+    // Cập nhật card trạng thái ở tab GitHub
+    const statusBox = document.getElementById('github-status-box');
+    const statusTitle = document.getElementById('github-status-title');
+    const statusSubtitle = document.getElementById('github-status-subtitle');
+
+    if (gh.token) {
+      if (statusBox) {
+        statusBox.style.background = 'rgba(16, 185, 129, 0.1)';
+        statusBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      }
+      if (statusTitle) {
+        statusTitle.innerHTML = `Trạng thái: <span style="color: var(--success); font-weight: 700;">🟢 ĐÃ KẾT NỐI CLOUD GITHUB</span>`;
+      }
+      if (statusSubtitle) {
+        statusSubtitle.textContent = `Kho lưu trữ: ${gh.repo || 'xoakenhhsk-commits/tailieufreehsk'} (${gh.branch || 'main'}). Mỗi khi đăng sách sẽ tự động hiện cho mọi người!`;
+      }
+    } else {
+      if (statusBox) {
+        statusBox.style.background = 'rgba(245, 158, 11, 0.1)';
+        statusBox.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+      }
+      if (statusTitle) {
+        statusTitle.innerHTML = `Trạng thái: <span style="color: var(--warning); font-weight: 700;">🟡 CHƯA KẾT NỐI GITHUB TOKEN</span>`;
+      }
+      if (statusSubtitle) {
+        statusSubtitle.textContent = 'Sách bạn đăng hiện chỉ lưu tạm trên máy này. Hãy dán GitHub Token bên dưới để đồng bộ cho tất cả thiết bị khác.';
+      }
+    }
+
+    // Cập nhật banner trên form Đăng sách (tab-add-book)
+    const addBookBanner = document.getElementById('add-book-cloud-status');
+    const iconEl = document.getElementById('cloud-status-icon');
+    const textEl = document.getElementById('cloud-status-text');
+
+    if (addBookBanner && textEl) {
+      if (gh.token) {
+        addBookBanner.style.background = 'rgba(16, 185, 129, 0.12)';
+        addBookBanner.style.border = '1px solid rgba(16, 185, 129, 0.35)';
+        addBookBanner.style.color = '#34d399';
+        if (iconEl) iconEl.textContent = '🟢';
+        textEl.innerHTML = `<strong>Cloud Sync ĐANG BẬT:</strong> Sách đăng sẽ tự lưu lên GitHub &amp; hiển thị ngay cho mọi điện thoại khác!`;
+      } else {
+        addBookBanner.style.background = 'rgba(245, 158, 11, 0.12)';
+        addBookBanner.style.border = '1px solid rgba(245, 158, 11, 0.35)';
+        addBookBanner.style.color = '#fbbf24';
+        if (iconEl) iconEl.textContent = '⚠️';
+        textEl.innerHTML = `<strong>Chưa kết nối Cloud:</strong> Sách đăng chỉ lưu trên máy này. Chạm vào đây để dán GitHub Token!`;
+      }
+    }
   },
 
   handleSaveBook() {
@@ -387,7 +564,12 @@ export const AdminModule = {
         description,
         isPinned
       });
-      this.showToast('✅ Đã thêm tài liệu thành công! Hãy vào tab "Mật Khẩu & Sao Lưu" -> tải file initial-books.json để lưu vĩnh viễn lên GitHub & Vercel.', 'success');
+      const gh = Store.getGitHubSettings();
+      if (gh.token) {
+        this.showToast('✅ Đã thêm sách và đang tự động đồng bộ lên GitHub Cloud!', 'success');
+      } else {
+        this.showToast('✅ Đã thêm sách vào máy! Mẹo: Hãy dán GitHub Token ở tab "☁️ Đồng Bộ GitHub" để sách tự hiện trên điện thoại người khác.', 'info', 6000);
+      }
     }
 
     this.resetForm();
@@ -555,5 +737,6 @@ export const AdminModule = {
     this.updateStats();
     this.renderManageList();
     this.loadAdSettings();
+    this.loadGitHubSettings();
   }
 };

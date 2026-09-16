@@ -52,6 +52,16 @@ export const App = {
     window.addEventListener('tailieufree_store_updated', () => {
       this.renderBooks();
       this.updateFavoritesCount();
+      if (this.activeTab === 'admin') {
+        AdminModule.refreshAdminData();
+      }
+    });
+
+    // Khi người dùng quay lại tab trình duyệt, tự động kiểm tra sách mới từ GitHub Cloud
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        Store.fetchRemoteBooks();
+      }
     });
 
     // Expose app to window

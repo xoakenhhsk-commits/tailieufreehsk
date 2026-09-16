@@ -9,7 +9,8 @@ const STORAGE_KEYS = {
   ADMIN_CUSTOM_PIN: 'tailieufree_admin_custom_pin',
   ADMIN_TOKEN: 'tailieufree_admin_token',
   ADMIN_AUTH: 'tailieufree_admin_auth',
-  SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v3'
+  SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v3',
+  GITHUB_SETTINGS: 'tailieufree_github_sync_v2'
 };
 
 const DEFAULT_PIN_HASH = '0ce624655f24e07f6c87aff2d126edab6a2219c704e0d9db3d645d85fb7d69d5';
@@ -25,6 +26,29 @@ export async function hashPin(pin) {
     return DEFAULT_PIN_HASH;
   }
 }
+
+// Chuyển chuỗi UTF-8 tiếng Việt sang Base64 chuẩn quốc tế
+export function utf8ToBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  const binString = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('');
+  return btoa(binString);
+}
+
+// Giải mã Base64 sang chuỗi UTF-8 tiếng Việt
+export function base64ToUtf8(base64) {
+  const clean = (base64 || '').replace(/\s/g, '');
+  const binString = atob(clean);
+  const bytes = Uint8Array.from(binString, (m) => m.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+export const DEFAULT_GITHUB_SETTINGS = {
+  token: '',
+  repo: 'xoakenhhsk-commits/tailieufreehsk',
+  branch: 'main',
+  path: 'src/js/initial-books.json',
+  autoSync: true
+};
 
 const DEFAULT_AD_SETTINGS = {
   enabled: true, // Kích hoạt tính năng quảng cáo
@@ -97,6 +121,9 @@ export const Store = {
     if (!localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH)) {
       localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, DEFAULT_PIN_HASH);
     }
+
+    // 2. Tự động đồng bộ sách mới nhất từ GitHub Cloud trong nền (Áp dụng cho mọi điện thoại/người dùng vào web)
+    this.fetchRemoteBooks();
   },
 
   // --- Quản lý Sách (Books CRUD) ---
@@ -143,6 +170,7 @@ export const Store = {
     };
     books.unshift(book);
     this.saveBooks(books);
+    this.triggerAutoSync(`Đăng sách mới: "${book.title}"`);
     return book;
   },
 
@@ -155,6 +183,7 @@ export const Store = {
       }
       books[index] = { ...books[index], ...updatedFields };
       this.saveBooks(books);
+      this.triggerAutoSync(`Cập nhật sách: "${books[index].title}"`);
       return books[index];
     }
     return null;
@@ -162,12 +191,15 @@ export const Store = {
 
   deleteBook(id) {
     let books = this.getBooks();
+    const target = books.find(b => b.id === id);
     books = books.filter(b => b.id !== id);
     this.saveBooks(books);
+    this.triggerAutoSync(`Xóa sách: "${target ? target.title : id}"`);
   },
 
   clearAllBooks() {
     this.saveBooks([]);
+    this.triggerAutoSync('Xóa toàn bộ sách khỏi cơ sở dữ liệu');
   },
 
   togglePin(id) {
@@ -176,6 +208,7 @@ export const Store = {
     if (book) {
       book.isPinned = !book.isPinned;
       this.saveBooks(books);
+      this.triggerAutoSync(`${book.isPinned ? 'Ghim' : 'Bỏ ghim'} sách: "${book.title}"`);
     }
     return book;
   },
@@ -384,6 +417,188 @@ export const Store = {
     localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(DEFAULT_DATABASE_BOOKS));
     localStorage.setItem(STORAGE_KEYS.AD_SETTINGS, JSON.stringify(DEFAULT_AD_SETTINGS));
     this.saveBooks(DEFAULT_DATABASE_BOOKS);
+  },
+
+  // --- Đồng Bộ Cơ Sở Dữ Liệu Lên GitHub (Cloud Database Sync) ---
+  getGitHubSettings() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.GITHUB_SETTINGS);
+      return data ? { ...DEFAULT_GITHUB_SETTINGS, ...JSON.parse(data) } : { ...DEFAULT_GITHUB_SETTINGS };
+    } catch {
+      return { ...DEFAULT_GITHUB_SETTINGS };
+    }
+  },
+
+  saveGitHubSettings(settings) {
+    const current = this.getGitHubSettings();
+    const updated = { ...current, ...settings };
+    localStorage.setItem(STORAGE_KEYS.GITHUB_SETTINGS, JSON.stringify(updated));
+    window.dispatchEvent(new Event('tailieufree_github_settings_updated'));
+    return updated;
+  },
+
+  // Kiểm tra kết nối tài khoản GitHub & quyền ghi vào Repo
+  async testGitHubConnection(token, repo, branch = 'main', path = 'src/js/initial-books.json') {
+    const cleanToken = (token || '').trim();
+    const cleanRepo = (repo || 'xoakenhhsk-commits/tailieufreehsk').trim();
+    if (!cleanToken) {
+      return { success: false, error: 'Vui lòng nhập GitHub Personal Access Token!' };
+    }
+
+    try {
+      // 1. Kiểm tra tài khoản
+      const userRes = await fetch('https://api.github.com/user', {
+        headers: {
+          'Authorization': `Bearer ${cleanToken}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+      if (!userRes.ok) {
+        return { success: false, error: `Token GitHub không hợp lệ hoặc đã hết hạn (Mã lỗi HTTP: ${userRes.status})` };
+      }
+      const userData = await userRes.json();
+
+      // 2. Kiểm tra quyền truy cập file trong repo
+      const fileRes = await fetch(`https://api.github.com/repos/${cleanRepo}/contents/${path}?ref=${branch}`, {
+        headers: {
+          'Authorization': `Bearer ${cleanToken}`,
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      });
+
+      if (!fileRes.ok && fileRes.status !== 404) {
+        return { success: false, error: `Không thể đọc Repo ${cleanRepo}. Hãy đảm bảo token có quyền 'repo' hoặc 'Contents: Read & Write'.` };
+      }
+
+      return {
+        success: true,
+        user: userData.login,
+        name: userData.name || userData.login,
+        repo: cleanRepo,
+        message: `Kết nối thành công với tài khoản GitHub: @${userData.login}!`
+      };
+    } catch (e) {
+      return { success: false, error: 'Lỗi mạng khi kết nối GitHub: ' + e.message };
+    }
+  },
+
+  // Đồng bộ toàn bộ danh sách sách lên GitHub
+  async syncToGitHub(customMessage) {
+    const gh = this.getGitHubSettings();
+    if (!gh.token) {
+      return { success: false, notConfigured: true, error: 'Chưa cài đặt GitHub Token' };
+    }
+
+    const repo = (gh.repo || 'xoakenhhsk-commits/tailieufreehsk').trim();
+    const branch = (gh.branch || 'main').trim();
+    const path = (gh.path || 'src/js/initial-books.json').trim();
+    const books = this.getBooks();
+
+    try {
+      // 1. Lấy SHA của file hiện tại trên GitHub
+      let currentSha = null;
+      const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`, {
+        headers: {
+          'Authorization': `Bearer ${gh.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        },
+        cache: 'no-store'
+      });
+
+      if (getRes.ok) {
+        const fileInfo = await getRes.json();
+        currentSha = fileInfo.sha;
+      }
+
+      // 2. Mã hóa danh sách sách UTF-8 sang Base64
+      const jsonString = JSON.stringify(books, null, 2);
+      const contentBase64 = utf8ToBase64(jsonString);
+
+      const commitBody = {
+        message: customMessage || `Cập nhật dữ liệu sách (${books.length} sách) từ Quản trị viên [skip ci]`,
+        content: contentBase64,
+        branch: branch
+      };
+      if (currentSha) {
+        commitBody.sha = currentSha;
+      }
+
+      // 3. Gửi commit cập nhật lên GitHub API
+      const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${gh.token}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(commitBody)
+      });
+
+      const result = await putRes.json();
+      if (!putRes.ok) {
+        throw new Error(result.message || `Lỗi GitHub API (${putRes.status})`);
+      }
+
+      window.dispatchEvent(new CustomEvent('tailieufree_github_synced', { detail: result }));
+      return {
+        success: true,
+        commitUrl: result.commit?.html_url || '',
+        booksCount: books.length
+      };
+    } catch (err) {
+      console.error('Lỗi sync GitHub:', err);
+      return { success: false, error: err.message };
+    }
+  },
+
+  // Tự động kích hoạt đồng bộ khi có thao tác dữ liệu
+  triggerAutoSync(actionDesc) {
+    const gh = this.getGitHubSettings();
+    if (gh.token && gh.autoSync) {
+      window.dispatchEvent(new CustomEvent('tailieufree_github_syncing', { detail: { action: actionDesc } }));
+      this.syncToGitHub(actionDesc).then(res => {
+        if (res.success) {
+          window.dispatchEvent(new CustomEvent('tailieufree_github_synced', { detail: res }));
+        } else if (!res.notConfigured) {
+          window.dispatchEvent(new CustomEvent('tailieufree_github_sync_error', { detail: res }));
+        }
+      }).catch(() => {});
+    }
+  },
+
+  // Tự động tải dữ liệu sách mới nhất từ GitHub Cloud (Mọi thiết bị khác vào web sẽ nhận sách mới ngay)
+  async fetchRemoteBooks() {
+    try {
+      const gh = this.getGitHubSettings();
+      const repo = (gh.repo || 'xoakenhhsk-commits/tailieufreehsk').trim();
+      const branch = (gh.branch || 'main').trim();
+      const path = (gh.path || 'src/js/initial-books.json').trim();
+      
+      const rawUrl = `https://raw.githubusercontent.com/${repo}/${branch}/${path}?_t=${Date.now()}`;
+      const res = await fetch(rawUrl, { cache: 'no-store' });
+      if (!res.ok) return { success: false, status: res.status };
+
+      const remoteBooks = await res.json();
+      if (!Array.isArray(remoteBooks) || remoteBooks.length === 0) return { success: false, error: 'Empty/invalid remote data' };
+
+      const currentBooks = this.getBooks();
+
+      // So sánh dữ liệu từ GitHub với dữ liệu đang lưu trong máy
+      const isDifferent = remoteBooks.length !== currentBooks.length || 
+                          remoteBooks.some((b, i) => !currentBooks[i] || b.id !== currentBooks[i].id || b.title !== currentBooks[i].title);
+
+      if (isDifferent) {
+        console.log(`[TaiLieuFree] Đã đồng bộ ${remoteBooks.length} sách mới nhất từ GitHub Cloud!`);
+        localStorage.setItem(STORAGE_KEYS.BOOKS, JSON.stringify(remoteBooks));
+        window.dispatchEvent(new Event('tailieufree_store_updated'));
+        return { success: true, updated: true, booksCount: remoteBooks.length };
+      }
+
+      return { success: true, updated: false, booksCount: remoteBooks.length };
+    } catch (err) {
+      console.warn('Không thể tải dữ liệu mới từ GitHub Cloud:', err);
+      return { success: false, error: err.message };
+    }
   }
 };
 
