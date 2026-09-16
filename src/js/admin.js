@@ -504,14 +504,32 @@ export const AdminModule = {
 
     const totalBooksEl = document.getElementById('stat-total-books');
     const totalViewsEl = document.getElementById('stat-total-views');
+    const totalDownloadsEl = document.getElementById('stat-total-downloads');
+    const realtimeOnlineEl = document.getElementById('stat-realtime-online');
     const totalPinnedEl = document.getElementById('stat-total-pinned');
     const adStatusEl = document.getElementById('stat-ad-status');
 
     if (totalBooksEl) totalBooksEl.textContent = books.length;
+
+    // Lượt xem thật: tổng lượt xem của tất cả tài liệu thật
+    const realViews = books.reduce((acc, b) => acc + (b.views || 0), 0);
     if (totalViewsEl) {
-      const views = books.reduce((acc, b) => acc + (b.views || 0), 0);
-      totalViewsEl.textContent = views;
+      const analyticsViews = window.Analytics?.cachedStats?.totalViews || 0;
+      totalViewsEl.textContent = Math.max(realViews, analyticsViews);
     }
+
+    // Lượt tải thật: tổng lượt tải của tất cả tài liệu thật
+    const realDownloads = books.reduce((acc, b) => acc + (b.downloads || 0), 0);
+    if (totalDownloadsEl) {
+      const analyticsDownloads = window.Analytics?.cachedStats?.totalDownloads || 0;
+      totalDownloadsEl.textContent = Math.max(realDownloads, analyticsDownloads);
+    }
+
+    // Đang xem trực tiếp:
+    if (realtimeOnlineEl) {
+      realtimeOnlineEl.textContent = Math.max(1, window.Analytics?.cachedStats?.onlineNow || 1);
+    }
+
     if (totalPinnedEl) {
       const pinned = books.filter(b => b.isPinned).length;
       totalPinnedEl.textContent = pinned;
@@ -519,6 +537,16 @@ export const AdminModule = {
     if (adStatusEl) {
       adStatusEl.textContent = adSettings.enabled ? 'Đang BẬT' : 'Đang TẮT';
       adStatusEl.style.color = adSettings.enabled ? 'var(--success)' : 'var(--text-muted)';
+    }
+
+    this.updatePinDescription();
+  },
+
+  updatePinDescription() {
+    const pinDesc = document.querySelector('#tab-security .admin-card-desc');
+    if (pinDesc) {
+      const curPin = Store.getAdminPin();
+      pinDesc.innerHTML = `Mã PIN quản trị hiện tại của bạn là: <strong style="color: var(--accent-primary); letter-spacing: 0.1em;">${curPin}</strong>. Bạn có thể đổi sang mã PIN mới bất kỳ lúc nào tại đây.`;
     }
   },
 

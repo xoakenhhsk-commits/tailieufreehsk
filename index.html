@@ -538,18 +538,18 @@
 
           <form id="admin-change-pin-form" style="max-width: 420px; margin-top: 14px;">
             <div class="form-group">
-              <label class="form-label" for="old-pin-input">Mật khẩu hiện tại <span class="req">*</span></label>
-              <input type="password" id="old-pin-input" class="form-input" placeholder="Nhập 12102010" required autocomplete="current-password">
+              <label class="form-label" for="old-pin-input">Mã PIN hiện tại <span class="req">*</span></label>
+              <input type="text" id="old-pin-input" class="form-input secure-mask-input" placeholder="Nhập mã PIN cũ (Mặc định: 12102010)" required autocomplete="off" spellcheck="false">
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="new-pin-input">Mật khẩu mới <span class="req">*</span></label>
-              <input type="password" id="new-pin-input" class="form-input" placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" required autocomplete="new-password">
+              <label class="form-label" for="new-pin-input">Mã PIN mới <span class="req">*</span></label>
+              <input type="text" id="new-pin-input" class="form-input secure-mask-input" placeholder="Mã PIN mới (tối thiểu 4 ký tự)" required autocomplete="off" spellcheck="false">
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="confirm-new-pin-input">Xác nhận mật khẩu mới <span class="req">*</span></label>
-              <input type="password" id="confirm-new-pin-input" class="form-input" placeholder="Nhập lại mật khẩu mới" required autocomplete="new-password">
+              <label class="form-label" for="confirm-new-pin-input">Xác nhận mã PIN mới <span class="req">*</span></label>
+              <input type="text" id="confirm-new-pin-input" class="form-input secure-mask-input" placeholder="Nhập lại mã PIN mới" required autocomplete="off" spellcheck="false">
             </div>
 
             <button type="submit" class="btn-submit-book" style="margin-top: 8px;">
@@ -746,15 +746,19 @@
         <form id="pin-login-form">
           <div class="password-input-wrap">
             <input 
-              type="password" 
+              type="text" 
               id="pin-input" 
-              class="form-input pin-input" 
-              maxlength="32" 
-              placeholder="Nhập mật khẩu..." 
+              class="form-input pin-input secure-mask-input" 
+              inputmode="numeric"
+              maxlength="20" 
+              placeholder="Nhập mã PIN (Mặc định: 12102010)" 
               required 
-              autocomplete="current-password"
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
             >
-            <button type="button" class="btn-toggle-pwd" id="btn-toggle-pin-visibility" title="Hiện/Ẩn mật khẩu">👁️</button>
+            <button type="button" class="btn-toggle-pwd" id="btn-toggle-pin-visibility" title="Hiện/Ẩn mã PIN">👁️</button>
           </div>
           <button type="submit" class="btn-submit-book" style="margin-top: 14px;">
             Xác Nhận Đăng Nhập

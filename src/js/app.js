@@ -233,13 +233,8 @@ export const App = {
     const pinInput = document.getElementById('pin-input');
     if (togglePinBtn && pinInput) {
       togglePinBtn.addEventListener('click', () => {
-        if (pinInput.type === 'password') {
-          pinInput.type = 'text';
-          togglePinBtn.textContent = '🙈';
-        } else {
-          pinInput.type = 'password';
-          togglePinBtn.textContent = '👁️';
-        }
+        pinInput.classList.toggle('revealed');
+        togglePinBtn.textContent = pinInput.classList.contains('revealed') ? '🙈' : '👁️';
       });
     }
 
@@ -322,7 +317,7 @@ export const App = {
       modal.classList.add('active');
       if (pinInput) {
         pinInput.value = '';
-        pinInput.type = 'password';
+        pinInput.classList.remove('revealed');
         const togglePinBtn = document.getElementById('btn-toggle-pin-visibility');
         if (togglePinBtn) togglePinBtn.textContent = '👁️';
         setTimeout(() => pinInput.focus(), 200);
@@ -496,6 +491,10 @@ export const App = {
   openBookDetail(bookId) {
     const book = Store.getBookById(bookId);
     if (!book) return;
+
+    // Tăng lượt xem thật khi người dùng xem chi tiết tài liệu
+    Store.incrementViews(book.id);
+    book.views = (book.views || 0) + 1;
     this.selectedBook = book;
 
     const modal = document.getElementById('book-detail-modal');

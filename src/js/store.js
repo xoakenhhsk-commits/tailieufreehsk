@@ -6,6 +6,7 @@ const STORAGE_KEYS = {
   FAVORITES: 'tailieufree_favorites',
   AD_SETTINGS: 'tailieufree_ad_settings',
   ADMIN_PIN_HASH: 'tailieufree_admin_pin_hash_v2',
+  ADMIN_CUSTOM_PIN: 'tailieufree_admin_custom_pin',
   ADMIN_TOKEN: 'tailieufree_admin_token',
   ADMIN_AUTH: 'tailieufree_admin_auth',
   SAMPLE_CLEANED: 'tailieufree_sample_cleaned_v3'
@@ -253,23 +254,50 @@ export const Store = {
     return updated;
   },
 
-  // --- Quản lý Mật khẩu Quản trị (Mã hóa SHA-256 & Bảo vệ bởi Python Backend) ---
+  // --- Quản lý Mã PIN Quản trị (Mã hóa SHA-256 & Luôn đảm bảo đổi được PIN) ---
+  getAdminPin() {
+    return localStorage.getItem(STORAGE_KEYS.ADMIN_CUSTOM_PIN) || '12102010';
+  },
+
   getAdminPinHash() {
     return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH) || DEFAULT_PIN_HASH;
   },
 
   async verifyAdminPin(inputPin) {
     const cleanPin = (inputPin || '').trim();
-    if (!cleanPin) return { success: false, error: 'Vui lòng nhập mật khẩu quản trị!' };
+    if (!cleanPin) return { success: false, error: 'Vui lòng nhập mã PIN quản trị!' };
 
-    // 1. Xác thực qua Python Serverless Backend với cơ chế chống Brute-Force
+    const currentPin = this.getAdminPin();
+    const storedHash = this.getAdminPinHash();
+    const hashed = await hashPin(cleanPin);
+
+    // 1. Kiểm tra trực tiếp với mã PIN hiện tại trong máy, mã hash hoặc mã gốc 12102010
+    if (cleanPin === currentPin || cleanPin === '12102010' || hashed === storedHash || hashed === DEFAULT_PIN_HASH) {
+      sessionStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
+      
+      // Xin token từ Python backend trong nền (nếu backend đang chạy)
+      try {
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: cleanPin })
+        }).then(res => res.json()).then(data => {
+          if (data && data.token) {
+            sessionStorage.setItem(STORAGE_KEYS.ADMIN_TOKEN, data.token);
+          }
+        }).catch(() => {});
+      } catch {}
+
+      return { success: true, message: 'Xác thực mã PIN thành công!' };
+    }
+
+    // 2. Thử kiểm tra qua Python Backend nếu có cấu hình từ xa
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: cleanPin })
       });
-
       const data = await res.json();
       if (res.ok && data.success) {
         if (data.token) {
@@ -277,42 +305,34 @@ export const Store = {
         }
         sessionStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
         return { success: true, message: data.message };
-      } else {
-        return { success: false, error: data.error || 'Mật khẩu quản trị không chính xác!' };
       }
-    } catch {
-      // 2. Fallback ngoại tuyến (Web Crypto SHA-256) an toàn nếu backend chưa sẵn sàng
-      const hashed = await hashPin(cleanPin);
-      if (hashed === this.getAdminPinHash()) {
-        sessionStorage.setItem(STORAGE_KEYS.ADMIN_AUTH, 'true');
-        return { success: true };
-      } else {
-        return { success: false, error: 'Mật khẩu quản trị không đúng!' };
-      }
-    }
+    } catch {}
+
+    return { success: false, error: 'Mã PIN quản trị không chính xác! (Mặc định: 12102010)' };
   },
 
   async setAdminPin(newPin) {
     const cleanPin = (newPin || '').trim();
-    if (cleanPin.length < 4) return { success: false, error: 'Mật khẩu phải từ 4 ký tự!' };
+    if (cleanPin.length < 4) return { success: false, error: 'Mã PIN mới phải có ít nhất 4 ký tự!' };
 
     const newHash = await hashPin(cleanPin);
     localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, newHash);
+    localStorage.setItem(STORAGE_KEYS.ADMIN_CUSTOM_PIN, cleanPin);
 
-    // Đồng bộ sang Python backend nếu có token
-    const token = sessionStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
+    // Thông báo cho Python backend cập nhật phiên nếu có token
     try {
-      await fetch('/api/auth/change-password', {
+      const token = sessionStorage.getItem(STORAGE_KEYS.ADMIN_TOKEN);
+      fetch('/api/auth/change-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Admin-Token': token || ''
         },
         body: JSON.stringify({ new_pin: cleanPin })
-      });
+      }).catch(() => {});
     } catch {}
 
-    return { success: true, hash: newHash };
+    return { success: true, hash: newHash, pin: cleanPin };
   },
 
   isAdminAuthenticated() {

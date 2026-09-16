@@ -1544,4 +1544,18 @@ body {
   }
 }
 
+/* ================= SECURE PIN INPUT (CHỐNG CẢNH BÁO CHROME PASSWORD ALERT) ================= */
+.secure-mask-input {
+  -webkit-text-security: disc !important;
+  text-security: disc !important;
+  letter-spacing: 0.18em !important;
+  font-family: inherit !important;
+}
+
+.secure-mask-input.revealed {
+  -webkit-text-security: none !important;
+  text-security: none !important;
+  letter-spacing: 0.04em !important;
+}
+
 
