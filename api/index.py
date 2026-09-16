@@ -35,8 +35,8 @@ DEFAULT_PIN_HASH = hashlib.pbkdf2_hmac(
 RATE_LIMIT_STORE = {} # { ip: [timestamp1, timestamp2, ...] }
 ONLINE_SESSIONS = {}  # { session_id: last_seen_timestamp }
 STATS_STORE = {
-    "total_views": 150,
-    "total_downloads": 48,
+    "total_views": 0,
+    "total_downloads": 0,
     "book_downloads": {},
     "unique_visitors": set()
 }

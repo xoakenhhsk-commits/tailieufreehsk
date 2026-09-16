@@ -511,18 +511,16 @@ export const AdminModule = {
 
     if (totalBooksEl) totalBooksEl.textContent = books.length;
 
-    // Lượt xem thật: tổng lượt xem của tất cả tài liệu thật
+    // Lượt xem thật: lấy trực tiếp từ tổng lượt xem của tất cả tài liệu trong trang user
     const realViews = books.reduce((acc, b) => acc + (b.views || 0), 0);
     if (totalViewsEl) {
-      const analyticsViews = window.Analytics?.cachedStats?.totalViews || 0;
-      totalViewsEl.textContent = Math.max(realViews, analyticsViews);
+      totalViewsEl.textContent = realViews;
     }
 
-    // Lượt tải thật: tổng lượt tải của tất cả tài liệu thật
+    // Lượt tải thật: lấy trực tiếp từ tổng lượt tải của tất cả tài liệu trong trang user
     const realDownloads = books.reduce((acc, b) => acc + (b.downloads || 0), 0);
     if (totalDownloadsEl) {
-      const analyticsDownloads = window.Analytics?.cachedStats?.totalDownloads || 0;
-      totalDownloadsEl.textContent = Math.max(realDownloads, analyticsDownloads);
+      totalDownloadsEl.textContent = realDownloads;
     }
 
     // Đang xem trực tiếp:
