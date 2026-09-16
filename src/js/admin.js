@@ -85,12 +85,13 @@ export const AdminModule = {
     if (saveAdBtn) {
       saveAdBtn.addEventListener('click', () => {
         const enabled = document.getElementById('adsterra-toggle')?.checked || false;
+        const autoPopunder = document.getElementById('adsterra-autopopunder-toggle')?.checked ?? true;
         const directLinkUrl = document.getElementById('adsterra-direct-url')?.value.trim() || '';
         const scriptCode = document.getElementById('adsterra-script-code')?.value.trim() || '';
         const bannerHtml = document.getElementById('adsterra-banner-code')?.value.trim() || '';
         const countdownSeconds = parseInt(document.getElementById('ad-countdown-input')?.value) || 5;
 
-        Store.saveAdSettings({ enabled, directLinkUrl, scriptCode, bannerHtml, countdownSeconds });
+        Store.saveAdSettings({ enabled, autoPopunder, directLinkUrl, scriptCode, bannerHtml, countdownSeconds });
         this.showToast('Đã lưu cấu hình quảng cáo thành công!', 'success');
         this.updateStats();
       });
@@ -328,12 +329,14 @@ export const AdminModule = {
   loadAdSettings() {
     const settings = Store.getAdSettings();
     const adToggle = document.getElementById('adsterra-toggle');
+    const autoPopunderToggle = document.getElementById('adsterra-autopopunder-toggle');
     const adUrlInput = document.getElementById('adsterra-direct-url');
     const scriptInput = document.getElementById('adsterra-script-code');
     const bannerInput = document.getElementById('adsterra-banner-code');
     const countdownInput = document.getElementById('ad-countdown-input');
 
     if (adToggle) adToggle.checked = !!settings.enabled;
+    if (autoPopunderToggle) autoPopunderToggle.checked = settings.autoPopunder !== false;
     if (adUrlInput) adUrlInput.value = settings.directLinkUrl || '';
     if (scriptInput) scriptInput.value = settings.scriptCode || '';
     if (bannerInput) bannerInput.value = settings.bannerHtml || '';

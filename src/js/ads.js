@@ -8,9 +8,69 @@ export const AdManager = {
   init() {
     this.applyAdSettings();
     this.bindGateEvents();
+    this.setupAutoPopunderOnEntry();
 
     window.addEventListener('tailieufree_ad_settings_updated', () => {
       this.applyAdSettings();
+      this.setupAutoPopunderOnEntry();
+    });
+  },
+
+  // Tự động mở tab quảng cáo (Popunder) ở cú chạm đầu tiên khi vào web để ghi nhận View / Tiền Adsterra
+  setupAutoPopunderOnEntry() {
+    const settings = Store.getAdSettings();
+    // Chỉ chạy khi bật quảng cáo và không bị tắt tính năng autoPopunder
+    if (!settings.enabled || settings.autoPopunder === false) return;
+
+    const POPUNDER_SESSION_KEY = 'tailieufree_popunder_last_trigger';
+    const lastTrigger = parseInt(sessionStorage.getItem(POPUNDER_SESSION_KEY) || '0', 10);
+    const now = Date.now();
+
+    // Giới hạn 1 lần mỗi phiên truy cập hoặc mỗi 10 phút để không gây khó chịu cho người học
+    if (now - lastTrigger < 10 * 60 * 1000) return;
+
+    let hasTriggered = false;
+
+    const onFirstUserGesture = (e) => {
+      if (hasTriggered) return;
+
+      const target = e.target;
+      // Tránh cướp click khi đang thao tác trong trang quản trị Admin hoặc nút tải đã có cơ chế Smartlink riêng
+      if (
+        target &&
+        (target.closest('#admin-view') ||
+         target.closest('.admin-btn') ||
+         target.closest('.admin-tab-btn') ||
+         target.closest('.btn-read-card') ||
+         target.closest('.btn-download-trigger') ||
+         target.closest('.btn-gate-final'))
+      ) {
+        return;
+      }
+
+      hasTriggered = true;
+      sessionStorage.setItem(POPUNDER_SESSION_KEY, Date.now().toString());
+
+      const smartlink = this.getSmartlinkUrl();
+      if (smartlink) {
+        try {
+          const adTab = window.open(smartlink, '_blank');
+          if (adTab) {
+            window.focus();
+          }
+        } catch (err) {
+          console.warn('Adsterra Popunder:', err);
+        }
+      }
+
+      // Gỡ bỏ sự kiện sau khi đã kích hoạt thành công
+      ['click', 'touchstart'].forEach(evt => {
+        document.removeEventListener(evt, onFirstUserGesture, true);
+      });
+    };
+
+    ['click', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, onFirstUserGesture, true);
     });
   },
 
