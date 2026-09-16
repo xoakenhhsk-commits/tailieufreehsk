@@ -1,0 +1,161 @@
+/* === MOBILE-FIRST ENHANCEMENTS & LIQUID GLASS BOTTOM NAVIGATION === */
+
+/* Bottom Navigation Bar for Mobile */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 68px;
+  background: rgba(9, 14, 26, 0.82);
+  backdrop-filter: blur(28px) saturate(210%);
+  -webkit-backdrop-filter: blur(28px) saturate(210%);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 90;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: var(--squircle-sm);
+  transition: var(--transition-fast);
+  position: relative;
+  flex: 1;
+}
+
+.bottom-nav-item svg {
+  width: 22px;
+  height: 22px;
+  transition: transform 0.25s var(--spring-bounce), color 0.2s ease;
+}
+
+.bottom-nav-item span {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item.active {
+  color: #c7d2fe;
+}
+
+.bottom-nav-item.active svg {
+  transform: translateY(-2px) scale(1.12);
+  color: #818cf8;
+}
+
+.bottom-nav-item.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 32px;
+  height: 3px;
+  background: var(--accent-gradient);
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  background: #ec4899;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  min-width: 16px;
+  text-align: center;
+}
+
+.btn-text-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .btn-text-desktop {
+    display: inline;
+  }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .app-container {
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-bottom: 95px;
+  }
+
+  .header-content {
+    padding: 10px 14px;
+  }
+
+  .brand-info h1 {
+    font-size: 1.1rem;
+  }
+
+  .hero-title {
+    font-size: 1.65rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.88rem;
+    margin-bottom: 18px;
+  }
+
+  .search-input {
+    font-size: 0.92rem;
+    padding: 13px 40px 13px 44px;
+  }
+
+  .books-grid {
+    gap: 12px;
+  }
+
+  .book-card-body {
+    padding: 10px 10px 12px 10px;
+  }
+
+  .book-card-title {
+    font-size: 0.84rem;
+  }
+
+  .btn-read-card {
+    padding: 8px;
+    font-size: 0.76rem;
+  }
+
+  .modal-card {
+    margin: 10px;
+    border-radius: var(--squircle-lg);
+  }
+
+  .book-detail-grid {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .book-detail-cover {
+    width: 130px;
+  }
+
+  .book-detail-info {
+    align-items: center;
+  }
+}

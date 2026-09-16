@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#090d16">
+  <meta name="description" content="TaiLieuFree - Kho sách, giáo trình và tài liệu điện tử miễn phí định dạng DOCX chuẩn cho học tập, nghiên cứu và phát triển kỹ năng.">
+  <title>TaiLieuFree - Kho Sách & Tài Liệu DOCX Miễn Phí</title>
+
+  <!-- Google Fonts: Inter with Vietnamese support -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/src/styles/main.css">
+  <link rel="stylesheet" href="/src/styles/admin.css">
+  <link rel="stylesheet" href="/src/styles/mobile.css">
+</head>
+<body>
+
+  <!-- Background Dynamic Liquid Aurora Orbs for Apple Liquid Glass Refraction -->
+  <div class="liquid-aurora-bg" aria-hidden="true">
+    <div class="liquid-orb orb-indigo"></div>
+    <div class="liquid-orb orb-purple"></div>
+    <div class="liquid-orb orb-cyan"></div>
+    <div class="liquid-orb orb-rose"></div>
+  </div>
+
+  <!-- Top App Header với hiệu ứng Liquid Glass -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="brand" id="brand-logo" title="TaiLieuFree - Trang chủ">
+        <div class="brand-icon">
+          <span class="brand-icon-gloss"></span>
+          <span>📚</span>
+        </div>
+        <div class="brand-info">
+          <h1>TaiLieuFree</h1>
+          <span>Kho Sách & Tài Liệu DOCX</span>
+        </div>
+      </a>
+
+      <!-- Tiện ích nhanh ở Header cho người dùng (Tìm kiếm & Nút 3 gạch trên laptop/web) -->
+      <div class="header-actions">
+        <button class="header-action-btn" id="btn-header-search" title="Tìm tài liệu nhanh">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+          </svg>
+          <span class="btn-text-desktop">Tìm kiếm</span>
+        </button>
+
+        <!-- Nút Menu 3 Gạch dành cho Laptop / Web -->
+        <button class="header-action-btn liquid-menu-btn" id="btn-header-menu" title="Mở danh mục menu">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+          </svg>
+          <span class="btn-text-desktop">Menu</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Floating Liquid Glass Dropdown Menu (Khi bấm nút 3 Gạch) -->
+  <div class="liquid-menu-overlay" id="liquid-menu-overlay">
+    <div class="liquid-dropdown-menu" id="liquid-dropdown-menu">
+      <div class="dropdown-menu-header">
+        <div class="dropdown-brand-badge">✨ TaiLieuFree Menu</div>
+        <button class="dropdown-close-btn" id="btn-close-dropdown" title="Đóng menu">✕</button>
+      </div>
+
+      <div class="dropdown-menu-items">
+        <button class="dropdown-item" data-menu-action="home">
+          <span class="dropdown-item-icon">🏠</span>
+          <span class="dropdown-item-text">Trang Chủ</span>
+        </button>
+
+        <button class="dropdown-item" data-menu-action="favorites">
+          <span class="dropdown-item-icon">❤️</span>
+          <span class="dropdown-item-text">Tài Liệu Yêu Thích</span>
+          <span class="dropdown-item-badge" id="menu-fav-badge" style="display: none;">0</span>
+        </button>
+
+        <button class="dropdown-item" data-menu-action="search">
+          <span class="dropdown-item-icon">🔍</span>
+          <span class="dropdown-item-text">Tìm Kiếm Tài Liệu</span>
+        </button>
+
+        <button class="dropdown-item" data-menu-action="reload">
+          <span class="dropdown-item-icon">🔄</span>
+          <span class="dropdown-item-text">Làm Mới Kho Sách</span>
+        </button>
+      </div>
+
+      <div class="dropdown-menu-footer">
+        <span>TaiLieuFree v2.0 • Định Dạng DOCX Chuẩn</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="app-container">
+
+    <!-- ================= USER VIEW (GIAO DIỆN NGƯỜI DÙNG) ================= -->
+    <section id="user-view">
+      <!-- Hero / Search Section -->
+      <div class="hero-section">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>Kho tài liệu DOCX chọn lọc &amp; Cập nhật liên tục</span>
+        </div>
+        <h2 class="hero-title">Đọc &amp; Tải Sách DOCX Miễn Phí</h2>
+        <p class="hero-subtitle">Tra cứu hàng nghìn giáo trình đại học, tài liệu công nghệ, kinh tế, ngoại ngữ và kỹ năng chuẩn định dạng Microsoft Word.</p>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="search-input-wrapper">
+            <div class="search-icon-left">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              class="search-input" 
+              id="main-search-input" 
+              placeholder="Tìm kiếm tài liệu thật, tác giả, đề tài..."
+              autocomplete="off"
+            >
+            <button class="search-clear-btn" id="search-clear-btn" title="Xóa tìm kiếm">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vị trí Banner Quảng Cáo Kiếm Tiền Đầu Trang (Leaderboard / Responsive Banner) -->
+      <div id="home-ad-banner" class="ad-banner-slot liquid-glass-ad" style="display: none;"></div>
+
+      <!-- Section Title & Status -->
+      <div class="section-header">
+        <div class="section-title-wrap">
+          <h3 class="section-title">
+            <span class="title-icon">📖</span>
+            <span id="section-title-text">Danh Mục Sách &amp; Tài Liệu</span>
+          </h3>
+        </div>
+        <span class="book-count-badge" id="book-count-badge">Đang tải...</span>
+      </div>
+
+      <!-- Books Grid -->
+      <div class="books-grid" id="books-grid">
+        <!-- Dynamic Book Cards -->
+      </div>
+    </section>
+
+    <!-- ================= ADMIN VIEW (CHỈ HIỆN KHI VÀO ./admin HOẶC PHÍM TẮT) ================= -->
+    <section id="admin-view" class="admin-wrapper">
+      <div class="admin-top-bar">
+        <div class="admin-header-title">
+          <div class="admin-badge-lock">🔐 Quản Trị Hệ Thống</div>
+          <h2>Bảng Điều Khiển Quản Trị</h2>
+          <p>Quản lý tài liệu thật, cấu hình quảng cáo Adsterra và thiết lập an toàn</p>
+        </div>
+
+        <div class="admin-top-actions">
+          <button class="btn-admin-action secondary" id="btn-admin-back-home" title="Xem trang người dùng">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+            </svg>
+            Về Trang Chủ
+          </button>
+          <button class="btn-admin-action danger" id="btn-admin-logout" title="Đăng xuất và khóa quản trị">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+            </svg>
+            Đăng Xuất
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">📚</div>
+          <span class="stat-card-title">Tổng số tài liệu</span>
+          <span class="stat-card-value" id="stat-total-books">0</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">👁️</div>
+          <span class="stat-card-title">Lượt xem tài liệu</span>
+          <span class="stat-card-value" id="stat-total-views">0</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;">📌</div>
+          <span class="stat-card-title">Tài liệu đã ghim</span>
+          <span class="stat-card-value" id="stat-total-pinned">0</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap" style="background: rgba(236, 72, 153, 0.15); color: #f472b6;">📢</div>
+          <span class="stat-card-title">Quảng cáo Adsterra</span>
+          <span class="stat-card-value" id="stat-ad-status">Đang TẮT</span>
+        </div>
+      </div>
+
+      <!-- Admin Tabs Navigation -->
+      <div class="admin-tabs">
+        <button class="admin-tab-btn active" data-tab="add-book">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          Đăng Sách Mới
+        </button>
+        <button class="admin-tab-btn" data-tab="manage-books">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+          </svg>
+          Quản Lý Sách
+        </button>
+        <button class="admin-tab-btn" data-tab="ad-settings">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.16-1.602-.383-1.428-2.268-2.316-4.9-2.508-7.712m4.245 3.421c.254-.962.585-1.892.986-2.783.247-.55.06-1.21-.463-1.511l-.657-.38c-.551-.318-1.26-.16-1.602.383-1.428 2.268-2.316 4.9-2.508 7.712m8.49-3.421a18.358 18.358 0 001.272-3.136c.205-.62.802-1.028 1.458-1.028h.52c.656 0 1.253.408 1.458 1.028a18.356 18.356 0 011.272 3.136m-4.708 0a18.396 18.396 0 01-1.272 3.136c-.205.62-.802 1.028-1.458 1.028h-.52c-.656 0-1.253-.408-1.458-1.028a18.396 18.396 0 01-1.272-3.136"/>
+          </svg>
+          Cài Đặt Quảng Cáo (Adsterra)
+        </button>
+        <button class="admin-tab-btn" data-tab="security">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+          </svg>
+          Mật Khẩu &amp; Sao Lưu
+        </button>
+      </div>
+
+      <!-- Tab 1: Đăng Sách Mới / Chỉnh Sửa -->
+      <div class="admin-panel-content active" id="tab-add-book">
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <h3 class="admin-card-title">
+              <span>📝</span> Nhập Thông Tin Tài Liệu / Sách Thật
+            </h3>
+            <p class="admin-card-desc">Hỗ trợ link DOCX từ Google Drive (tự động tối ưu link tải), OneDrive, hoặc link file trực tiếp. Ảnh bìa tải từ máy lên hoặc nhập link.</p>
+          </div>
+
+          <form id="admin-book-form">
+            <!-- Tiêu đề -->
+            <div class="form-group">
+              <label class="form-label" for="book-title-input">
+                Tiêu đề sách / tài liệu <span class="req">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="book-title-input" 
+                class="form-input" 
+                placeholder="Ví dụ: Giáo Trình Lập Trình Python Toàn Tập (DOCX)" 
+                required
+              >
+            </div>
+
+            <!-- Link File DOCX -->
+            <div class="form-group">
+              <label class="form-label" for="book-docx-input">
+                Link file DOCX <span class="req">*</span>
+              </label>
+              <input 
+                type="url" 
+                id="book-docx-input" 
+                class="form-input" 
+                placeholder="https://drive.google.com/file/d/... hoặc link file .docx trực tiếp" 
+                required
+              >
+              <div class="form-help">
+                💡 <strong>Mẹo Google Drive:</strong> Bạn chỉ cần dán link chia sẻ Google Drive (chế độ <em>Bất kỳ ai có đường liên kết</em>), hệ thống sẽ tự động chuyển đổi thành link tải trực tiếp!
+              </div>
+            </div>
+
+            <!-- Upload Ảnh Bìa từ máy hoặc chọn ảnh -->
+            <div class="form-group">
+              <label class="form-label">Ảnh bìa sách (Tải từ điện thoại / máy tính)</label>
+              <input type="file" id="cover-file-input" accept="image/*" style="display: none;">
+              
+              <div class="cover-upload-area" id="cover-dropzone">
+                <div class="cover-upload-icon">📸</div>
+                <div class="cover-upload-text">Chạm hoặc Kéo thả ảnh bìa vào đây</div>
+                <div class="cover-upload-subtext">Hỗ trợ JPG, PNG, WEBP (Tự động nén tối ưu bộ nhớ)</div>
+              </div>
+
+              <!-- Preview Ảnh Tải Lên -->
+              <div class="cover-preview-container" id="cover-preview-container">
+                <img src="" id="cover-preview-img" class="cover-preview-img" alt="Bìa sách preview">
+                <div class="cover-preview-meta">
+                  <div id="cover-preview-name" style="font-size: 0.85rem; font-weight: 600;"></div>
+                  <div style="font-size: 0.72rem; color: var(--success);">✓ Đã xử lý ảnh bìa sẵn sàng</div>
+                </div>
+                <button type="button" class="btn-remove-preview" id="btn-remove-cover">Gỡ ảnh</button>
+              </div>
+
+              <!-- Hoặc nhập link ảnh online -->
+              <div style="margin-top: 12px;">
+                <label class="form-label" for="book-cover-url-input" style="font-size: 0.78rem; color: var(--text-muted);">Hoặc dán URL ảnh bìa online (Tùy chọn nếu không tải ảnh lên):</label>
+                <input 
+                  type="url" 
+                  id="book-cover-url-input" 
+                  class="form-input" 
+                  placeholder="https://images.unsplash.com/... hoặc để trống để dùng ảnh mặc định"
+                >
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <!-- Danh mục -->
+              <div class="form-group">
+                <label class="form-label" for="book-category-select">Danh mục thể loại</label>
+                <select id="book-category-select" class="form-select">
+                  <option value="Công nghệ">Công nghệ</option>
+                  <option value="Kinh tế">Kinh tế</option>
+                  <option value="Kỹ năng sống">Kỹ năng sống</option>
+                  <option value="Ngoại ngữ">Ngoại ngữ</option>
+                  <option value="Giáo trình">Giáo trình</option>
+                  <option value="Văn học">Văn học</option>
+                  <option value="Khác">Khác</option>
+                </select>
+              </div>
+
+              <!-- Tác giả -->
+              <div class="form-group">
+                <label class="form-label" for="book-author-input">Tác giả / Nguồn tài liệu</label>
+                <input 
+                  type="text" 
+                  id="book-author-input" 
+                  class="form-input" 
+                  placeholder="Ví dụ: ĐH Bách Khoa, ThS. Nguyễn Văn A..."
+                >
+              </div>
+            </div>
+
+            <!-- Mô tả ngắn -->
+            <div class="form-group">
+              <label class="form-label" for="book-desc-input">Tóm tắt nội dung tài liệu</label>
+              <textarea 
+                id="book-desc-input" 
+                class="form-textarea" 
+                placeholder="Mô tả nội dung chính, mục tiêu của cuốn sách hoặc tài liệu này..."
+              ></textarea>
+            </div>
+
+            <!-- Ghim sách -->
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 6px;">
+              <input type="checkbox" id="book-pin-checkbox" style="width: 18px; height: 18px; accent-color: var(--accent-primary); cursor: pointer;">
+              <label for="book-pin-checkbox" style="font-size: 0.88rem; cursor: pointer; user-select: none;">
+                📌 <strong>Ghim tài liệu này lên đầu trang chủ</strong>
+              </label>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 16px;">
+              <button type="submit" class="btn-submit-book" id="btn-submit-book" style="flex: 1;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span id="btn-submit-book-text">Đăng Sách Mới</span>
+              </button>
+              <button type="button" class="btn-preview-office" id="btn-cancel-edit" style="display: none; padding: 12px 20px;">
+                Hủy Chỉnh Sửa
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tab 2: Quản Lý Sách -->
+      <div class="admin-panel-content" id="tab-manage-books">
+        <div class="admin-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <h3 class="admin-card-title">
+                <span>📚</span> Danh Sách Tài Liệu Hiện Tại
+              </h3>
+              <p class="admin-card-desc">Chỉnh sửa nội dung, ghim sách ưu tiên hoặc xóa tài liệu khỏi hệ thống.</p>
+            </div>
+            <button type="button" id="btn-clear-sample-books" class="btn-danger-soft">
+              🗑️ Xóa sạch sách mẫu để nhập dữ liệu thật
+            </button>
+          </div>
+
+          <div id="admin-books-list">
+            <!-- Dynamic Admin Books List -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Cài Đặt Quảng Cáo (Adsterra & Adsense) -->
+      <div class="admin-panel-content" id="tab-ad-settings">
+        <div class="admin-card">
+          <h3 class="admin-card-title">
+            <span>📢</span> Cấu Hình Quảng Cáo Kiếm Tiền (Adsterra)
+          </h3>
+          <p class="admin-card-desc">Thiết lập kiếm tiền thông qua Adsterra Direct Link (chuyển hướng tải), Popunder / Social Bar và Banner quảng cáo.</p>
+
+          <div class="alert-box info">
+            <strong>ℹ️ Cơ chế hoạt động của Direct Link:</strong><br>
+            • Khi quảng cáo <strong>TẮT</strong>: Người dùng bấm vào sách sẽ chuyển thẳng đến link DOCX.<br>
+            • Khi quảng cáo <strong>BẬT</strong>: 
+            Lần click 1 vào sách sẽ mở tab quảng cáo Adsterra (Direct Link). Khi người dùng quay lại và click lần thứ 2, hệ thống sẽ mở file DOCX đích!
+          </div>
+
+          <!-- Switch Toggle Bật / Tắt -->
+          <div class="toggle-switch-wrapper">
+            <div class="toggle-switch-label">
+              <strong>Kích hoạt tính năng Quảng cáo</strong>
+              <span>Bật hoặc tắt toàn bộ quảng cáo trên trang chỉ bằng 1 chạm</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="adsterra-toggle">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- 1. Direct Link URL -->
+          <div class="form-group">
+            <label class="form-label" for="adsterra-direct-url">
+              1. Link Quảng Cáo Adsterra (Direct Link URL)
+            </label>
+            <input 
+              type="url" 
+              id="adsterra-direct-url" 
+              class="form-input" 
+              placeholder="https://www.highcpmgate.com/..."
+            >
+            <div class="form-help">Điền link Direct Link bạn lấy từ tài khoản Publisher của Adsterra (Mở tab tài trợ trước khi tải DOCX).</div>
+          </div>
+
+          <!-- 2. Mã Script Popunder / Social Bar -->
+          <div class="form-group">
+            <label class="form-label" for="adsterra-script-code">
+              2. Mã Script Adsterra (Social Bar / Popunder) - Tùy chọn
+            </label>
+            <textarea 
+              id="adsterra-script-code" 
+              class="form-textarea" 
+              style="min-height: 80px; font-family: monospace; font-size: 0.8rem;" 
+              placeholder="<script type='text/javascript' src='//...popunder or social bar...'></script>"
+            ></textarea>
+            <div class="form-help">Dán nguyên đoạn mã script Social Bar hoặc Popunder bạn lấy từ Adsterra vào đây. Hệ thống sẽ tự động chạy script khi bật quảng cáo.</div>
+          </div>
+
+          <!-- 3. Mã Banner HTML -->
+          <div class="form-group">
+            <label class="form-label" for="adsterra-banner-code">
+              3. Mã Banner Quảng Cáo (HTML Banner 300x250 hoặc 728x90) - Tùy chọn
+            </label>
+            <textarea 
+              id="adsterra-banner-code" 
+              class="form-textarea" 
+              style="min-height: 80px; font-family: monospace; font-size: 0.8rem;" 
+              placeholder="<script type='text/javascript'>...</script>"
+            ></textarea>
+            <div class="form-help">Banner sẽ tự động hiển thị ở đầu trang chủ và bên trong khung chi tiết tài liệu khi người dùng xem sách.</div>
+          </div>
+
+          <!-- 4. Thời Gian Đếm Ngược Cổng Chờ Tải (Download Gate) -->
+          <div class="form-group">
+            <label class="form-label" for="ad-countdown-input">
+              4. Thời Gian Đếm Ngược Cổng Chờ Tải (Giây)
+            </label>
+            <input 
+              type="number" 
+              id="ad-countdown-input" 
+              class="form-input" 
+              min="0" 
+              max="30" 
+              value="5" 
+              placeholder="5"
+            >
+            <div class="form-help">Thời gian người dùng dừng lại xem quảng cáo trước khi mở nút tải DOCX (khuyên dùng: 3 - 5 giây để tối ưu CPM cao nhất).</div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" class="btn-submit-book" id="btn-save-ads" style="flex: 2;">
+              💾 Lưu Cài Đặt Quảng Cáo
+            </button>
+            <button type="button" class="btn-preview-office" id="btn-test-ad" style="flex: 1;">
+              ⚡ Thử Nghiệm Luồng QC
+            </button>
+          </div>
+        </div>
+
+        <!-- Khung hướng dẫn chi tiết cách đăng ký và lấy mã Adsterra -->
+        <div class="admin-card" style="border-left: 4px solid var(--accent-primary);">
+          <h3 class="admin-card-title" style="color: var(--accent-primary);">
+            <span>📖</span> Hướng Dẫn Từng Bước Đặt Quảng Cáo Adsterra Kiếm Tiền
+          </h3>
+          <div style="font-size: 0.86rem; line-height: 1.7; color: var(--text-secondary); display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+            <div>
+              <strong style="color: var(--text-primary);">Bước 1: Đăng ký tài khoản Publisher</strong><br>
+              Truy cập <a href="https://adsterra.com" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); text-decoration: underline;">Adsterra.com</a>, chọn <em>Sign Up as Publisher</em>. Điền email và mật khẩu (duyệt tự động ngay lập tức).
+            </div>
+
+            <div>
+              <strong style="color: var(--text-primary);">Bước 2: Lấy Direct Link (Khuyên dùng - Kiếm tiền hiệu quả nhất)</strong><br>
+              1. Trong bảng điều khiển Adsterra, vào menu <strong>Direct Links</strong> bên trái.<br>
+              2. Bấm nút <strong>Create Direct Link</strong>, chọn Category là <em>Mainstream / Non-adult</em>.<br>
+              3. Đợi khoảng 1-2 phút trạng thái chuyển sang <em>Active</em>, copy link có dạng <code>https://www.highcpmgate.com/xxxxxx</code>.<br>
+              4. Dán link đó vào ô <strong>1. Link Quảng Cáo Adsterra (Direct Link URL)</strong> ở trên và bật công tắc kích hoạt!
+            </div>
+
+            <div>
+              <strong style="color: var(--text-primary);">Bước 3: Lấy Social Bar hoặc Popunder (Tăng doanh thu)</strong><br>
+              1. Vào menu <strong>Websites</strong> -> Bấm <strong>Add Website</strong> -> Điền tên miền của bạn (ví dụ: <code>tailieufree.vercel.app</code>).<br>
+              2. Chọn loại quảng cáo là <strong>Social Bar</strong> (thông báo giả lập nhẹ nhàng trên di động, tỷ lệ click cực cao) hoặc <strong>Popunder</strong>.<br>
+              3. Bấm <em>Add</em>, đợi duyệt trong 2 phút rồi copy đoạn mã <code>&lt;script...&gt;</code>.<br>
+              4. Dán đoạn mã đó vào ô <strong>2. Mã Script Adsterra</strong> ở trên.
+            </div>
+
+            <div>
+              <strong style="color: var(--text-primary);">Bước 4: Nhận tiền về tài khoản</strong><br>
+              Adsterra thanh toán 2 lần mỗi tháng (vào ngày 1-2 và 16-17) qua PayPal, USDT (Crypto), WebMoney, hoặc Wire Transfer với ngưỡng thanh toán tối thiểu chỉ từ 5$.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Mật Khẩu Quản Trị & Sao Lưu Dữ Liệu -->
+      <div class="admin-panel-content" id="tab-security">
+        <!-- Đổi Mật Khẩu Quản Trị -->
+        <div class="admin-card">
+          <h3 class="admin-card-title">
+            <span>🔑</span> Đổi Mật Khẩu Quản Trị Hệ Thống
+          </h3>
+          <p class="admin-card-desc">Mật khẩu hiện tại của bạn là <strong>12102010</strong>. Bạn có thể đổi sang mật khẩu mới tại đây bất cứ lúc nào.</p>
+
+          <form id="admin-change-pin-form" style="max-width: 420px; margin-top: 14px;">
+            <div class="form-group">
+              <label class="form-label" for="old-pin-input">Mật khẩu hiện tại <span class="req">*</span></label>
+              <input type="password" id="old-pin-input" class="form-input" placeholder="Nhập 12102010" required autocomplete="current-password">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="new-pin-input">Mật khẩu mới <span class="req">*</span></label>
+              <input type="password" id="new-pin-input" class="form-input" placeholder="Mật khẩu mới (tối thiểu 4 ký tự)" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirm-new-pin-input">Xác nhận mật khẩu mới <span class="req">*</span></label>
+              <input type="password" id="confirm-new-pin-input" class="form-input" placeholder="Nhập lại mật khẩu mới" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn-submit-book" style="margin-top: 8px;">
+              Cập Nhật Mật Khẩu
+            </button>
+          </form>
+        </div>
+
+        <!-- Sao Lưu & Khôi Phục -->
+        <div class="admin-card">
+          <h3 class="admin-card-title">
+            <span>💾</span> Sao Lưu &amp; Khôi Phục Dữ Liệu (JSON)
+          </h3>
+          <p class="admin-card-desc">Toàn bộ kho sách thật và cài đặt của bạn được lưu trữ an toàn trong trình duyệt. Bạn có thể tải file sao lưu JSON về máy tính để dự phòng hoặc chuyển sang máy khác.</p>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
+            <div>
+              <button type="button" class="btn-preview-office" id="btn-export-data" style="justify-content: flex-start; padding: 12px 18px;">
+                📥 <strong>Xuất File Sao Lưu Toàn Bộ (Export JSON)</strong>
+              </button>
+              <div class="form-help">Tải toàn bộ danh sách tài liệu thật, link docx và cài đặt về máy dạng file .json</div>
+            </div>
+
+            <div>
+              <input type="file" id="import-file-input" accept=".json" style="display: none;">
+              <button type="button" class="btn-preview-office" onclick="document.getElementById('import-file-input').click()" style="justify-content: flex-start; padding: 12px 18px;">
+                📤 <strong>Khôi Phục Dữ Liệu Từ File (Import JSON)</strong>
+              </button>
+              <div class="form-help">Nạp lại dữ liệu sách từ file .json đã sao lưu trước đó.</div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 8px;">
+              <button type="button" id="btn-reset-data" style="background: none; border: 1px solid var(--danger); color: var(--danger); padding: 10px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                ⚠️ Đặt lại dữ liệu mẫu ban đầu
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= BOTTOM NAVIGATION BAR (CHO MOBILE - STYLE TASKBAR LIQUID GLASS) ================= -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav-item active" data-nav-target="home">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+      </svg>
+      <span>Trang chủ</span>
+    </button>
+
+    <button class="bottom-nav-item" id="bottom-nav-search-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+      </svg>
+      <span>Tìm kiếm</span>
+    </button>
+
+    <button class="bottom-nav-item" data-nav-target="favorites">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+      </svg>
+      <span>Yêu thích</span>
+      <span class="nav-badge" id="nav-fav-badge" style="display: none;">0</span>
+    </button>
+
+    <button class="bottom-nav-item" id="bottom-nav-menu-btn">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+      </svg>
+      <span>Menu</span>
+    </button>
+  </nav>
+
+  <!-- ================= BOOK DETAIL MODAL ================= -->
+  <div class="modal-overlay" id="book-detail-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h4 class="modal-title">Thông Tin Tài Liệu</h4>
+        <button class="modal-close-btn" data-close-modal title="Đóng">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="book-detail-grid">
+          <img src="" id="modal-book-cover" class="book-detail-cover" alt="Bìa sách">
+          <div class="book-detail-info">
+            <span class="badge-docx" style="align-self: flex-start; margin-bottom: 6px;">ĐỊNH DẠNG DOCX</span>
+            <div id="modal-book-category" style="font-size: 0.8rem; color: var(--accent-primary); font-weight: 700; margin-bottom: 4px;"></div>
+            <h3 id="modal-book-title" class="book-detail-title"></h3>
+            <div id="modal-book-author" class="book-detail-author"></div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">
+              <span>👁️ <strong id="modal-book-views" style="color: var(--text-primary);">0</strong> xem</span> • 
+              <span>⬇️ <strong id="modal-book-downloads" style="color: var(--text-primary);">0</strong> tải</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="modal-book-desc" class="book-detail-desc"></div>
+
+        <!-- Vị trí Banner trong Modal (nếu có) -->
+        <div id="modal-ad-banner" class="ad-banner-slot modal-banner-slot" style="display: none;"></div>
+
+        <div class="book-actions-group">
+          <!-- Nút tải chính qua Download Gate & AdManager -->
+          <button class="btn-open-docx-primary" id="modal-btn-open-docx">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.5V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+            </svg>
+            Tải / Mở File DOCX Ngay
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= DOWNLOAD GATE & AD MODAL (TỐI ƯU HÓA CPM & CLICK) ================= -->
+  <div class="modal-overlay" id="download-gate-modal">
+    <div class="modal-card download-gate-card">
+      <div class="modal-header">
+        <div class="gate-header-badge">
+          <span class="gate-pulse-dot"></span>
+          <span>Cổng Tải Tốc Độ Cao &amp; Bảo Mật</span>
+        </div>
+        <button class="modal-close-btn" data-close-modal title="Đóng">✕</button>
+      </div>
+
+      <div class="modal-body gate-modal-body">
+        <div class="gate-countdown-circle-wrap">
+          <svg class="gate-countdown-svg" viewBox="0 0 100 100">
+            <circle class="gate-circle-bg" cx="50" cy="50" r="44"></circle>
+            <circle class="gate-circle-bar" id="gate-circle-bar" cx="50" cy="50" r="44"></circle>
+          </svg>
+          <div class="gate-countdown-content">
+            <span class="gate-countdown-num" id="gate-countdown-num">5</span>
+            <span class="gate-countdown-label">giây</span>
+          </div>
+        </div>
+
+        <h3 class="gate-title" id="gate-book-title">Đang Tạo Đường Dẫn Tải An Toàn...</h3>
+        <p class="gate-subtitle">Vui lòng chờ giây lát trong khi máy chủ chuẩn bị tệp tài liệu nguyên bản cho bạn.</p>
+
+        <!-- Khung Quảng Cáo / Tài Trợ Kiếm Tiền Trong Cổng Tải -->
+        <div class="gate-ad-box" id="gate-ad-box">
+          <div class="gate-ad-tag">📢 LIÊN KẾT TÀI TRỢ &amp; ĐỐI TÁC</div>
+          <div id="gate-custom-ad-content" class="gate-ad-content">
+            <a href="#" id="gate-sponsor-click-link" target="_blank" rel="noopener noreferrer" class="gate-sponsor-card">
+              <div class="gate-sponsor-icon">⚡</div>
+              <div class="gate-sponsor-text">
+                <strong>Khám phá tài nguyên &amp; Ưu đãi hôm nay</strong>
+                <span>Nhấn để xem ưu đãi tài trợ hoặc chuyển hướng nhanh sang file tải!</span>
+              </div>
+              <div class="gate-sponsor-cta">Mở &gt;</div>
+            </a>
+          </div>
+        </div>
+
+        <div class="gate-actions-wrap">
+          <button class="btn-gate-final waiting" id="btn-gate-final-action" disabled>
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span id="gate-action-btn-text">Vui lòng đợi trong giây lát... (5s)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PIN AUTH MODAL (ADMIN) ================= -->
+  <div class="modal-overlay" id="pin-modal">
+    <div class="modal-card pin-dialog">
+      <div class="modal-header">
+        <h4 class="modal-title">Xác Thực Quản Trị Viên</h4>
+        <button class="modal-close-btn" data-close-modal title="Đóng">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="font-size: 2.6rem; margin-bottom: 6px;">🔐</div>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 14px;">Vui lòng nhập mật khẩu quản trị để mở bảng điều khiển</p>
+
+        <form id="pin-login-form">
+          <div class="password-input-wrap">
+            <input 
+              type="password" 
+              id="pin-input" 
+              class="form-input pin-input" 
+              maxlength="32" 
+              placeholder="Nhập mật khẩu..." 
+              required 
+              autocomplete="current-password"
+            >
+            <button type="button" class="btn-toggle-pwd" id="btn-toggle-pin-visibility" title="Hiện/Ẩn mật khẩu">👁️</button>
+          </div>
+          <button type="submit" class="btn-submit-book" style="margin-top: 14px;">
+            Xác Nhận Đăng Nhập
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main JavaScript Bundle Entry -->
+  <script type="module" src="/src/js/app.js"></script>
+</body>
+</html>
